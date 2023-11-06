@@ -1,40 +1,28 @@
-# web-course-design-frontend
+# web课设前端
 
-This template should help get you started developing with Vue 3 in Vite.
+### 启动项目
 
-## Recommended IDE Setup
+- 本项目采用pnpm作为包管理器. 在安装了nodejs后可以通过CMD运行 `pnpm -v` 命令, 若出现版本号, 则表明已经安装pnpm. 否则运行下面命令安装pnpm:
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+``` shell
+npm install -g pnpm
+```
 
-## Type Support for `.vue` Imports in TS
+- 初次运行项目之前, 执行以下命令安装项目所需依赖:
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
-
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
-
-1. Disable the built-in TypeScript Extension
-    1) Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-    2) Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
-
-```sh
+```shell
 pnpm install
 ```
 
-### Compile and Hot-Reload for Development
+- 执行以下命令运行项目:
 
-```sh
-pnpm dev
+```shell
+pnpm run dev
+# 运行成功后浏览器访问http://localhost:5173/即可
 ```
 
-### Type-Check, Compile and Minify for Production
+### 项目说明
 
-```sh
-pnpm build
-```
+- 本项目采用 `ant-design-vue` 组件库, [官网地址](https://antdv.com/components/overview-cn)
+  - 已经配置了自动导入组件. 调用组件时无需显式地 `import { ... } from 'ant-design-vue'` 了
+- 后续有额外内容的话会补充...

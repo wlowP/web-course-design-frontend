@@ -12,15 +12,15 @@
                         breakpoint="xl"
         >
           <div class="menu">
-            <a-button type="primary" style="margin-bottom: 16px;" @click="toggleCollapsed">
+            <a-button type="primary" style="margin-bottom: 16px;" @click="menuState.collapsed = !menuState.collapsed">
               <MenuUnfoldOutlined v-if="menuState.collapsed"/>
               <MenuFoldOutlined v-else/>
             </a-button>
             <a-menu
+              style="border-radius: 10px"
               v-model:openKeys="menuState.openKeys"
               v-model:selectedKeys="menuState.selectedKeys"
               mode="inline"
-              :inline-collapsed="menuState.collapsed"
               :items="menuItems"
               @select="onSelected"
             ></a-menu>
@@ -42,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { h, reactive, watch } from 'vue'
+import { h, reactive } from 'vue'
 import {
   AppstoreOutlined,
   DesktopOutlined,
@@ -54,52 +54,51 @@ import {
 } from '@ant-design/icons-vue'
 import useUserStore from '@/stores/user'
 import { ch } from '@/utils/commons'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const store = useUserStore()
 const router = useRouter()
+const route = useRoute()
 
 // 菜单状态
 const menuState = reactive({
   collapsed: false,
-  selectedKeys: ['description'],
-  openKeys: ['userinfo'],
-  preOpenKeys: ['userinfo'],
+  selectedKeys: [route.path],
+  openKeys: [decodeURI(route.path.substring(1).split('/')[1])]
 })
 
-// todo: bug: 在某个子页面刷新后, 菜单默认选中的项会变成description, 但是路由页面展示的还是原来的子页面
 // 菜单选项
 // 每当TypeScript报类型错误时, 难搞的话就any得了
 const menuItems = reactive<any>([
   {
-    key: 'userinfo',
+    key: '个人信息',
     icon: () => h(MailOutlined),
     label: '个人信息',
     children: [
       {
-        key: 'description',
+        key: ch('/主页/个人信息/系统简介'),
         label: '系统简介',
         title: '本项目的简介',
-        to: ch('/主页/个人信息/系统简介'),
         icon: () => h(FileTextOutlined)
       }, {
-        key: 'renew-password',
-        label: '修改密码',
-        to: ch('/主页/个人信息/修改密码')
+        key: ch('/主页/个人信息/修改密码'),
+        label: '修改密码'
       }
     ]
   }
 ])
 
 // 选中菜单选项是的跳转方法
-// TypeScript类型检查太严格了, 但又没法引用到MenuItem的类型定义, 所以这里全部any了, AnyScript (((
+// TypeScript类型检查太严格了, 但又没法引用到MenuItem的类型定义, 所以这里就any了, AnyScript (((
 // 注意一下ts函数形参中出现解构时定义类型的格式
-const onSelected = ({ item }: { item: any }) => {
-    router.push(item.to)
-  }
+const onSelected = ({ _, key }: any) => {
+  console.log('menuState.openKeys = ', menuState.openKeys)
+
+  router.push(key)
+}
 
 // 根据用户类型动态添加菜单项
-;(() => {
+(() => {
   const userinfo = menuItems[0].children
   // 不检测menuItems[0].children是否存在的话TypeScript会报错
   if (userinfo) {
@@ -107,57 +106,49 @@ const onSelected = ({ item }: { item: any }) => {
       case 'ROLE_ADMIN': {
         // 个人信息: + 项目文档, + 项目视频
         userinfo.push({
-          key: 'project-doc',
-          label: '项目文档',
-          to: ch('/主页/个人信息/项目文档')
+          key: ch('/主页/个人信息/项目文档'),
+          label: '项目文档'
         }, {
-          key: 'project-video',
-          label: '项目视频',
-          to: ch('/主页/个人信息/项目视频')
+          key: ch('/主页/个人信息/项目视频'),
+          label: '项目视频'
         })
         menuItems.push({
-          key: 'system',
+          key: '系统管理',
           icon: () => h(AppstoreOutlined),
           label: '系统管理',
           children: [
             {
-              key: 'menu',
-              label: '菜单管理',
-              to: ch('/主页/系统管理/菜单管理')
+              key: ch('/主页/系统管理/菜单管理'),
+              label: '菜单管理'
             }, {
-              key: 'dictionary',
-              label: '字典管理',
-              to: ch('/主页/系统管理/字典管理')
+              key: ch('/主页/系统管理/字典管理'),
+              label: '字典管理'
             }
           ]
         }, {
-          key: 'staff',
+          key: '人员管理',
           icon: () => h(PieChartOutlined),
           label: '人员管理',
           children: [
             {
-              key: 'student-management',
-              label: '学生管理',
-              to: ch('/主页/人员管理/学生管理')
+              key: ch('/主页/人员管理/学生管理'),
+              label: '学生管理'
             }, {
-              key: 'teacher-management',
-              label: '教师管理',
-              to: ch('/主页/人员管理/教师管理')
+              key: ch('/主页/人员管理/教师管理'),
+              label: '教师管理'
             }
           ]
         }, {
-          key: 'education',
+          key: '教务管理',
           icon: () => h(DesktopOutlined),
           label: '教务管理',
           children: [
             {
-              key: 'course-management',
-              label: '课程管理',
-              to: ch('/主页/教务管理/课程管理')
+              key: ch('/主页/教务管理/课程管理'),
+              label: '课程管理'
             }, {
-              key: 'score-management',
-              label: '成绩管理',
-              to: ch('/主页/教务管理/成绩管理')
+              key: ch('/主页/教务管理/成绩管理'),
+              label: '成绩管理'
             }
           ]
         })
@@ -165,25 +156,21 @@ const onSelected = ({ item }: { item: any }) => {
       }
       case 'ROLE_TEACHER': {
         userinfo.push({
-          key: 'introduction',
-          label: '个人简介',
-          to: ch('/主页/个人信息/个人简介')
+          key: ch('/主页/个人信息/个人简介'),
+          label: '个人简介'
         })
         break
       }
       case 'ROLE_STUDENT': {
         userinfo.push({
-          key: 'project-doc',
-          label: '项目文档',
-          to: ch('/主页/个人信息/项目文档')
+          key: ch('/主页/个人信息/项目文档'),
+          label: '项目文档'
         }, {
-          key: 'project-video',
-          label: '项目视频',
-          to: ch('/主页/个人信息/项目视频')
+          key: ch('/主页/个人信息/项目视频'),
+          label: '项目视频'
         }, {
-          key: 'introduction',
-          label: '个人简介',
-          to: ch('/主页/个人信息/个人简介')
+          key: ch('/主页/个人信息/个人简介'),
+          label: '个人简介'
         })
         break
       }
@@ -191,24 +178,12 @@ const onSelected = ({ item }: { item: any }) => {
   }
 })()
 
-// 切换菜单折叠状态
-const toggleCollapsed = () => {
-  menuState.collapsed = !menuState.collapsed
-  // 在这里更新openKeys, 用于折叠时恢复
-  menuState.openKeys = menuState.collapsed ? [] : menuState.preOpenKeys
-}
-// watch更新preOpenKeys, 用于折叠时恢复
-watch(
-  () => menuState.openKeys,
-  (_, oldValue) => {
-    menuState.preOpenKeys = oldValue
-  },
-)
 </script>
 
 <style scoped lang="scss">
 .main {
   .header {
+    padding: 5px;
     text-align: center;
     color: white;
     height: 64px;
@@ -216,12 +191,13 @@ watch(
   }
 
   .body {
-    color: white;
-    //height: calc(100vh - 64px - 25px);
-    background-color: #108ee9;
+    padding: 5px;
+    //color: white;
+    //background-color: #108ee9;
   }
 
   .sider {
+    padding: 5px 5px 5px 0;
     text-align: left;
     color: white;
     background-color: #3ba0e9;

@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AButton: typeof import('ant-design-vue/es')['Button']
+    ADivider: typeof import('ant-design-vue/es')['Divider']
     ALayout: typeof import('ant-design-vue/es')['Layout']
     ALayoutContent: typeof import('ant-design-vue/es')['LayoutContent']
     ALayoutFooter: typeof import('ant-design-vue/es')['LayoutFooter']
@@ -15,6 +16,11 @@ declare module 'vue' {
     ALayoutSider: typeof import('ant-design-vue/es')['LayoutSider']
     AMenu: typeof import('ant-design-vue/es')['Menu']
     ASpace: typeof import('ant-design-vue/es')['Space']
+    ATypography: typeof import('ant-design-vue/es')['Typography']
+    ATypographyLink: typeof import('ant-design-vue/es')['TypographyLink']
+    ATypographyParagraph: typeof import('ant-design-vue/es')['TypographyParagraph']
+    ATypographyText: typeof import('ant-design-vue/es')['TypographyText']
+    ATypographyTitle: typeof import('ant-design-vue/es')['TypographyTitle']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

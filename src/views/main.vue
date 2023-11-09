@@ -1,7 +1,7 @@
 <template>
   <!-- 主页面 -->
   <div class="main">
-    <a-layout style="min-height: 100vh;">
+    <a-layout style="height: 100vh;">
       <a-layout-header class="header">
         沙袋大学学生信息管理系统
       </a-layout-header>
@@ -22,11 +22,11 @@
               v-model:selectedKeys="menuState.selectedKeys"
               mode="inline"
               :items="menuItems"
-              @select="onSelected"
+              @select="({ key }: any) => router.push(key)"
             ></a-menu>
           </div>
         </a-layout-sider>
-        <a-layout-content class="body">
+        <a-layout-content class="content">
           <router-view v-slot="{ Component }">
             <keep-alive>
               <component :is="Component"/>
@@ -42,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { h, reactive } from 'vue'
+import { h, reactive, ref, watch } from 'vue'
 import {
   AppstoreOutlined,
   DesktopOutlined,
@@ -60,10 +60,16 @@ const store = useUserStore()
 const router = useRouter()
 const route = useRoute()
 
+// 及时根据路由变化更新菜单选中项
+watch(() => route.path, () => {
+  menuState.value.selectedKeys = [route.path]
+})
+
 // 菜单状态
-const menuState = reactive({
+const menuState = ref<any>({
   collapsed: false,
   selectedKeys: [route.path],
+  // 分割路由路径, 得到二级路由名称, 作为菜单的展开项
   openKeys: [decodeURI(route.path.substring(1).split('/')[1])]
 })
 
@@ -88,17 +94,8 @@ const menuItems = reactive<any>([
   }
 ])
 
-// 选中菜单选项是的跳转方法
-// TypeScript类型检查太严格了, 但又没法引用到MenuItem的类型定义, 所以这里就any了, AnyScript (((
-// 注意一下ts函数形参中出现解构时定义类型的格式
-const onSelected = ({ _, key }: any) => {
-  console.log('menuState.openKeys = ', menuState.openKeys)
-
-  router.push(key)
-}
-
 // 根据用户类型动态添加菜单项
-(() => {
+;(() => {
   const userinfo = menuItems[0].children
   // 不检测menuItems[0].children是否存在的话TypeScript会报错
   if (userinfo) {
@@ -190,16 +187,20 @@ const onSelected = ({ _, key }: any) => {
     background-color: #7dbcea;
   }
 
-  .body {
+  .content {
     padding: 5px;
     //color: white;
     //background-color: #108ee9;
+    max-height: calc(100vh - 64px - 25px);
+    overflow: auto;
   }
 
   .sider {
     padding: 5px 5px 5px 0;
+    max-height: calc(100vh - 64px - 25px);
     text-align: left;
     color: white;
+    overflow: auto;
     background-color: #3ba0e9;
 
     .menu {

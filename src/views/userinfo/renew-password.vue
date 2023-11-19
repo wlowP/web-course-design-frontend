@@ -5,8 +5,9 @@
                    :avatar="{ src: svgRenewPwd, shape: 'square' }"
     >
       <template #title><span class="title">修改密码</span></template>
+      <span class="tip">密码强度要求三种字符类型（大小写、数字、特殊字符）及以上且密码长度为8位及以上！</span>
     </a-page-header>
-    <a-card>
+    <a-card bordered>
       <a-form
         :model="formState"
         name="renew-password"
@@ -81,7 +82,7 @@ const rules: Record<string, Rule[]> = {
 
 const onFinish = () => {
   console.log('通过参数校验:', formState.value)
-  // 请求修改密码...
+  // 发起请求修改密码...
 }
 
 </script>

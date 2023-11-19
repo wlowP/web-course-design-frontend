@@ -25,6 +25,8 @@ declare module 'vue' {
     APageHeader: typeof import('ant-design-vue/es')['PageHeader']
     ARow: typeof import('ant-design-vue/es')['Row']
     ASpace: typeof import('ant-design-vue/es')['Space']
+    ATable: typeof import('ant-design-vue/es')['Table']
+    ATag: typeof import('ant-design-vue/es')['Tag']
     ATypography: typeof import('ant-design-vue/es')['Typography']
     ATypographyLink: typeof import('ant-design-vue/es')['TypographyLink']
     ATypographyParagraph: typeof import('ant-design-vue/es')['TypographyParagraph']

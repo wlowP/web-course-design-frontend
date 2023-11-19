@@ -1,5 +1,5 @@
 <template>
-  <div class="description">
+  <div class="sys-description">
     <a-page-header class="header"
                    :avatar="{ src: svgDesc, shape: 'square' }"
     >
@@ -8,7 +8,7 @@
     </a-page-header>
     <a-row :gutter="12">
       <a-col span="16">
-        <a-card class="introduction">
+        <a-card class="introduction" bordered>
           <template #title>
             <span class="title">系统介绍</span>
           </template>
@@ -16,7 +16,7 @@
         </a-card>
       </a-col>
       <a-col span="8">
-        <a-card class="sys-notify">
+        <a-card class="sys-notify" bordered>
           <template #title>
             <span class="title">系统通知</span>
           </template>
@@ -74,7 +74,7 @@ import svgDesc from '@/assets/svg/介绍.svg'
 </script>
 
 <style scoped>
-.description {
+.sys-description {
 
   .sys-notify {
     background-color: #fff;

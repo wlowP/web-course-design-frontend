@@ -27,6 +27,7 @@
           </div>
         </a-layout-sider>
         <a-layout-content class="content">
+          <!-- todo: 用Transition组件加点页面切换的动画效果 -->
           <router-view v-slot="{ Component }">
             <keep-alive>
               <component :is="Component"/>
@@ -173,6 +174,10 @@ const menuItems = reactive<any>([
       }
     }
   }
+  menuItems.push({
+    key: ch('/主页/测试页面'),
+    label: '📌📌测试页面'
+  })
 })()
 
 </script>

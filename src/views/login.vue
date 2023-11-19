@@ -12,12 +12,15 @@
 import { useRouter } from 'vue-router'
 import { ch } from '@/utils/commons'
 import request from '@/utils/request'
+import useUserStore from '@/stores/user'
 
 const router = useRouter()
+const store = useUserStore()
 
 const test = async () => {
   const res = await request.post('http://localhost:9090/auth/helloWorld')
   console.log('res = ', res)
+  store.token = 'some token string'
 }
 </script>
 

@@ -26,3 +26,6 @@ pnpm run dev
 - 本项目采用 `ant-design-vue` 组件库, [官网地址](https://antdv.com/components/overview-cn)
   - 已经配置了自动导入组件. 调用组件时无需显式地 `import { ... } from 'ant-design-vue'` 了
 - 后续有额外内容的话会补充...
+
+### TODO
+- 引入ECharts

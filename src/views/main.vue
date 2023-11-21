@@ -174,6 +174,7 @@ const menuItems = reactive<any>([
       }
     }
   }
+  // todo: 测试页面, 发布后删除
   menuItems.push({
     key: ch('/主页/测试页面'),
     label: '📌📌测试页面'
@@ -188,7 +189,7 @@ const menuItems = reactive<any>([
     padding: 5px;
     text-align: center;
     color: white;
-    height: 64px;
+    height: 60px;
     background-color: #7dbcea;
   }
 
@@ -196,13 +197,13 @@ const menuItems = reactive<any>([
     padding: 5px;
     //color: white;
     //background-color: #108ee9;
-    max-height: calc(100vh - 64px - 25px);
+    max-height: calc(100vh - 60px - 25px);
     overflow: auto;
   }
 
   .sider {
     padding: 5px 5px 5px 0;
-    max-height: calc(100vh - 64px - 25px);
+    max-height: calc(100vh - 60px - 25px);
     text-align: left;
     color: white;
     overflow: auto;

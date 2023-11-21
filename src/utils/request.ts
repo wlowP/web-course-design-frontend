@@ -4,7 +4,7 @@ import useUserStore from '@/stores/user'
 // 创建axios实例, 将来基于创建出的实例进行配置和请求
 // 这样做不会污染原始axios实例
 const request = axios.create({
-  baseURL: '后端服务基地址',
+  baseURL: 'http://localhost:8080',
   timeout: 15000
 })
 
@@ -40,3 +40,9 @@ request.interceptors.response.use(response => {
 })
 
 export default request
+
+export interface DataResponse<T> {
+  code: number,
+  message: string | null,
+  data: T
+}

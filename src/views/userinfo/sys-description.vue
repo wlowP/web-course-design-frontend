@@ -6,8 +6,8 @@
       <template #title><span class="title">系统简介</span></template>
       <span class="tip">管理系统的基本情况, 以及通知</span>
     </a-page-header>
-    <a-row :gutter="12">
-      <a-col span="16">
+    <a-row :gutter="[10, 15]" :wrap="true">
+      <a-col :xs="24" :lg="16">
         <a-card class="introduction" bordered>
           <template #title>
             <span class="title">系统介绍</span>
@@ -15,7 +15,7 @@
           <p>啊?</p>
         </a-card>
       </a-col>
-      <a-col span="8">
+      <a-col :xs="24" :lg="8">
         <a-card class="sys-notify" bordered>
           <template #title>
             <span class="title">系统通知</span>

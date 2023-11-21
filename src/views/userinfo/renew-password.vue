@@ -19,6 +19,7 @@
         <a-form-item
           label="旧密码"
           name="oldPassword"
+          has-feedback
         >
           <a-input autocomplete="off" v-model:value="formState.oldPassword"/>
         </a-form-item>
@@ -26,6 +27,7 @@
         <a-form-item
           label="新密码"
           name="newPassword"
+          has-feedback
         >
           <a-input-password autocomplete="off" v-model:value="formState.newPassword"/>
         </a-form-item>
@@ -33,6 +35,7 @@
         <a-form-item
           label="确认新密码"
           name="confirmPassword"
+          has-feedback
         >
           <a-input-password autocomplete="off" v-model:value="formState.confirmPassword"/>
         </a-form-item>

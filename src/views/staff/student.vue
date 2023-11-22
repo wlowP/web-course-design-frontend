@@ -16,11 +16,42 @@
                @change="updateFiltersAndSorter"
                :pagination="{ position: ['bottomRight'], defaultPageSize: 15, showQuickJumper: true, pageSizeOptions: ['10', '15', '30', '50', '100'], showTotal: (total: any, range: any) => `共 ${total} 条 当前: ${range[0]} - ${range[1]}` }"
       >
-        <!-- todo: 启用了sticky属性让表头附着视口顶部后偶尔会出现底部有两个横向滚动条的情况, 看看能不能修复 -->
+        <!-- todo: 启用了sticky属性让表头附着视口顶部后, 划到表格底部时偶尔会出现底部有两个横向滚动条的情况, 看看能不能修复 -->
         <template #headerCell="{ column }">
           <span>
             {{ column.title }}
           </span>
+        </template>
+
+        <!-- 列搜索框 -->
+        <template
+          #customFilterDropdown="{ setSelectedKeys, selectedKeys, confirm, clearFilters, column }"
+        >
+          <div style="padding: 8px">
+            <a-input
+              ref="searchInputRef"
+              :placeholder="`根据 ${column.title} 搜索`"
+              :value="selectedKeys[0]"
+              style="width: 188px; margin-bottom: 8px; display: block"
+              @change="(e: any) => setSelectedKeys(e.target.value ? [e.target.value] : [])"
+              @pressEnter="handleSearch(selectedKeys, confirm, column.dataIndex)"
+            />
+            <a-button
+              type="primary"
+              size="small"
+              style="width: 90px; margin-right: 8px"
+              @click="handleSearch(selectedKeys, confirm, column.dataIndex)"
+            >
+              <template #icon><SearchOutlined /></template>
+              搜索
+            </a-button>
+            <a-button size="small" style="width: 90px" @click="handleReset(clearFilters)">
+              重置
+            </a-button>
+          </div>
+        </template>
+        <template #customFilterIcon="{ filtered }">
+          <search-outlined :style="{ color: filtered ? '#108ee9' : undefined }" />
         </template>
 
         <!-- record就对应每个学生对象 -->
@@ -32,8 +63,17 @@
           </template>
           <template v-else-if="column.title === '操作'">
             <a-space>
-              <a-button type="primary" danger>删除</a-button>
-              <a-button type="link">查看</a-button>
+              <a-button type="default" @click="router.push(ch('/主页/人员管理/学生信息'))">编辑</a-button>
+              <a-popconfirm title="是否确定要删除?"
+                            ok-text="确定"
+                            ok-type="danger"
+                            :ok-button-props="{ danger: true, type: 'primary' }"
+                            cancel-text="取消"
+                            @confirm="deleteStudent(record.studentId)"
+              >
+                <template #icon><question-circle-outlined style="color: red" /></template>
+                <a-button type="primary" danger>删除</a-button>
+              </a-popconfirm>
             </a-space>
           </template>
         </template>
@@ -44,7 +84,7 @@
             <a-table-summary-row>
               <a-table-summary-cell :index="0" :col-span="5">
                 <a-space>
-                  <div style="width: 4em;">共 {{ studentList.length }} 条</div>
+                  <div style="width: 5em;">总数 {{ studentList.length }}</div>
                   <a-button type="primary" :icon="h(ReloadOutlined)" @click="refresh">刷新</a-button>
                   <a-button type="dashed" @click="enabledSorter = {}">重置排序</a-button>
                   <a-button type="dashed" @click="enabledFilters = {}">重置过滤器</a-button>
@@ -54,8 +94,8 @@
               <a-table-summary-cell :index="5" :col-span="10"/>
               <a-table-summary-cell :index="15" :col-span="2">
                 <a-space>
-                  <a-button type="primary" @click="showModal = true">添加学生</a-button>
-                  <a-button type="primary">导出学生表格</a-button>
+                  <a-button type="primary" :icon="h(UserAddOutlined)" @click="showModal = true">添加学生</a-button>
+                  <a-button type="primary" :icon="h(DownloadOutlined)">导出学生表格</a-button>
                 </a-space>
               </a-table-summary-cell>
             </a-table-summary-row>
@@ -67,60 +107,67 @@
     <!-- 添加学生的对话框 -->
     <a-modal v-model:open="showModal"
              title="添加学生"
-             @ok="addStudent"
+             :mask-closable="false"
              style="top: 20vh"
     >
-      <a-form :label-col="{ style: { width: '100px' } }"
-              :model="form"
-      >
-        <a-form-item label="姓名">
-          <a-input v-model:value="form.name" />
-        </a-form-item>
-        <a-form-item label="学号">
-          <a-input v-model:value="form.username" />
-        </a-form-item>
-        <a-form-item label="年级">
-          <a-input v-model:value="form.grade" />
-        </a-form-item>
-        <a-form-item label="班级">
-          <a-input v-model:value="form.studentClass" />
-        </a-form-item>
-        <a-form-item label="专业">
-          <a-input v-model:value="form.major" />
-        </a-form-item>
-        <a-form-item label="性别">
-          <a-radio-group v-model:value="form.gender">
-            <a-radio :value="1">男</a-radio>
-            <a-radio :value="2">女</a-radio>
-          </a-radio-group>
-        </a-form-item>
-        <a-form-item label="邮箱">
-          <a-input v-model:value="form.email" />
-        </a-form-item>
-        <a-form-item label="籍贯">
-          <a-input v-model:value="form.birthplace" />
-        </a-form-item>
-        <a-form-item label="民族">
-          <a-input v-model:value="form.ethnicity" />
-        </a-form-item>
-        <a-form-item label="电话">
-          <a-input v-model:value="form.phone" />
-        </a-form-item>
-        <a-form-item label="出生日期">
-          <a-date-picker value-format="YYYY-MM-DD" v-model:value="form.birthday" />
-        </a-form-item>
-        <a-form-item label="住址">
-          <a-input v-model:value="form.address" />
-        </a-form-item>
-        <a-form-item label="上传头像">
-          <a-upload v-model:file-list="form.photo" :show-upload-list="false" list-type="picture-card">
-            <div>
-              <PlusOutlined />
-              <div style="margin-top: 8px">上传头像</div>
-            </div>
-          </a-upload>
-        </a-form-item>
-      </a-form>
+      <a-card bordered style="max-height: 50vh; overflow-y: scroll">
+        <a-form :label-col="{ style: { width: '100px' } }"
+                :model="form"
+                :rules="rules"
+                ref="formRef"
+        >
+          <a-form-item label="姓名" name="name">
+            <a-input v-model:value="form.name"/>
+          </a-form-item>
+          <a-form-item label="学号" name="username">
+            <a-input v-model:value="form.username"/>
+          </a-form-item>
+          <a-form-item label="年级" name="grade">
+            <a-select v-model:value="form.grade">
+              <a-select-option :value="1">大一</a-select-option>
+              <a-select-option :value="2">大二</a-select-option>
+              <a-select-option :value="3">大三</a-select-option>
+              <a-select-option :value="4">大四</a-select-option>
+              <a-select-option :value="5">其他</a-select-option>
+            </a-select>
+          </a-form-item>
+          <a-form-item label="班级" name="studentClass">
+            <a-input-number v-model:value="form.studentClass" addon-after="班" :min="1" :max="20"/>
+          </a-form-item>
+          <a-form-item label="专业" name="major">
+            <a-input v-model:value="form.major"/>
+          </a-form-item>
+          <a-form-item label="性别" name="gender">
+            <a-radio-group v-model:value="form.gender">
+              <a-radio :value="1">男</a-radio>
+              <a-radio :value="2">女</a-radio>
+            </a-radio-group>
+          </a-form-item>
+          <a-form-item label="邮箱" name="email">
+            <a-input v-model:value="form.email"/>
+          </a-form-item>
+          <a-form-item label="籍贯" name="birthplace">
+            <a-input v-model:value="form.birthplace"/>
+          </a-form-item>
+          <a-form-item label="民族" name="ethnicity">
+            <a-input v-model:value="form.ethnicity"/>
+          </a-form-item>
+          <a-form-item label="电话" name="phone">
+            <a-input v-model:value="form.phone"/>
+          </a-form-item>
+          <a-form-item label="出生日期" name="birthday">
+            <a-date-picker value-format="YYYY-MM-DD" v-model:value="form.birthday"/>
+          </a-form-item>
+          <a-form-item label="住址" name="address">
+            <a-input v-model:value="form.address"/>
+          </a-form-item>
+        </a-form>
+      </a-card>
+      <template #footer>
+        <a-button type="dashed" @click="reset">重置</a-button>
+        <a-button type="default" @click="showModal = false">取消</a-button>
+        <a-button type="primary" @click="addStudent" :loading="addLoading">确认添加</a-button>
+      </template>
     </a-modal>
   </div>
 </template>
@@ -128,11 +175,19 @@
 <script setup lang="ts">
 import svgStudentList from '@/assets/svg/学生管理.svg'
 import { useRouter } from 'vue-router'
-import { computed, h, ref } from 'vue'
+import { computed, h, reactive, ref } from 'vue'
 import { message, TableColumnType, TableProps } from 'ant-design-vue'
 import type { Student } from '@/types/Student'
-import { getStudentList } from '@/api/student'
-import { PlusOutlined, ReloadOutlined } from '@ant-design/icons-vue'
+import { addNewStudent, deleteStudentById, getStudentList } from '@/api/student'
+import {
+  ReloadOutlined,
+  QuestionCircleOutlined,
+  DownloadOutlined,
+  UserAddOutlined,
+  SearchOutlined
+} from '@ant-design/icons-vue'
+import type { Rule } from 'ant-design-vue/es/form'
+import { ch } from '@/utils/commons'
 
 const router = useRouter()
 const studentList = ref<Student[]>([])
@@ -162,22 +217,32 @@ const enabledFilters = ref()
 const enabledSorter = ref()
 
 // 使用计算属性返回columns对象数组, 以便实现受控的过滤器, 搜索等功能
-const columns = computed<TableColumnType<Student>[]>(() => {
+const columns = computed<TableColumnType[]>(() => {
   const filters = enabledFilters.value || {}
   const sorter = enabledSorter.value || {}
   return [
     // dataIndex支持数组来访对象的嵌套属性
     // key属性是对应vue使用v-for时需要的key, 如果已经指定了唯一的dataIndex属性, 就可不必指定key了
     {
-      title: '学号',
-      dataIndex: 'username',
-      width: 150,
-      fixed: 'left'
-    },
-    {
       title: '姓名',
       dataIndex: 'name',
       width: 120,
+      fixed: 'left',
+      customFilterDropdown: true,
+      onFilter: (value: string, record: Student) => record.name.toLowerCase().includes(value.toLowerCase()),
+      onFilterDropdownOpenChange: visible => {
+        if (visible) {
+          setTimeout(() => {
+            searchInputRef.value.focus()
+          }, 100)
+        }
+      },
+      filteredValue: searchState.searchedColumn === 'name' && [ ...searchState.searchText.split(' ') ],
+    },
+    {
+      title: '学号',
+      dataIndex: 'username',
+      width: 150
     },
     {
       title: '学生ID',
@@ -195,7 +260,10 @@ const columns = computed<TableColumnType<Student>[]>(() => {
       title: '年级',
       dataIndex: 'grade',
       width: 100,
-      filters: [{ text: '大一', value: '大一' }, { text: '大二', value: '大二' }, { text: '大三', value: '大三' }, { text: '大四', value: '大四' }],
+      filters: [{ text: '大一', value: '大一' }, { text: '大二', value: '大二' }, {
+        text: '大三',
+        value: '大三'
+      }, { text: '大四', value: '大四' }],
       onFilter: (value, student) => student.grade === value,
       filteredValue: filters.grade || null // 定义了filteredValue后就会启用过滤器的受控模式
     },
@@ -207,7 +275,22 @@ const columns = computed<TableColumnType<Student>[]>(() => {
     {
       title: '专业',
       dataIndex: 'major',
-      width: 250
+      width: 250,
+      customFilterDropdown: true,
+      onFilter: (value: string, record: Student) => {
+        if (!record.major) { // 有人专业为空的话就不显示
+          return false
+        }
+        return record.major.toLowerCase().includes(value.toLowerCase())
+      },
+      onFilterDropdownOpenChange: visible => {
+        if (visible) {
+          setTimeout(() => {
+            searchInputRef.value.focus()
+          }, 100)
+        }
+      },
+      filteredValue: searchState.searchedColumn === 'major' && [ ...searchState.searchText.split(' ') ],
     },
     {
       title: '绩点',
@@ -271,27 +354,95 @@ const updateFiltersAndSorter: TableProps['onChange'] = (_pagination, filters, so
   enabledSorter.value = sorter
 }
 
+const searchState = reactive({
+  searchText: '',
+  searchedColumn: '',
+})
+
+// 根据某一列的信息查询
+const searchInputRef = ref()
+
+const handleSearch = (selectedKeys: any, confirm: any, dataIndex: any) => {
+  confirm()
+  searchState.searchText = selectedKeys[0]
+  searchState.searchedColumn = dataIndex
+}
+
+const handleReset = (clearFilters: any) => {
+  clearFilters({ confirm: true })
+  searchState.searchText = ''
+}
+
 // 添加学生
+// 是否展示添加学生的对话框
 const showModal = ref(false)
+// 添加学生的表单
 const form = ref({
   name: '',
   username: '',
   grade: '',
   studentClass: '',
-  major: '',
+  major: 0,
   gender: '',
   email: '',
   birthplace: '',
   ethnicity: '',
   phone: '',
   birthday: '',
-  address: '',
-  photo: []
+  address: ''
 })
+// 添加学生的表单验证规则
+const rules = ref<Record<string, Rule[]>>({
+  name: [{ required: true, message: '请输入姓名', whitespace: true, trigger: 'blur' }],
+  username: [{ required: true, message: '请输入学号', whitespace: true, trigger: 'blur' }],
+  grade: [{ required: true, type: 'number', message: '请选择年级', whitespace: true, trigger: 'blur' }],
+  studentClass: [{ required: true, type: 'number', message: '请输入班级', whitespace: true, trigger: 'blur' }],
+  major: [{ required: true, message: '请输入专业', whitespace: true, trigger: 'blur' }],
+  gender: [{ required: true, type: 'number', message: '请选择性别', whitespace: true, trigger: 'blur' }],
+  email: [
+    { required: true, message: '请输入邮箱', whitespace: true, trigger: 'blur' },
+    { type: 'email', message: '邮箱格式不正确', trigger: ['blur', 'change'] }
+  ],
+  birthplace: [{ required: true, message: '请输入籍贯', whitespace: true, trigger: 'blur' }],
+  ethnicity: [{ required: true, message: '请输入民族', whitespace: true, trigger: 'blur' }],
+  phone: [
+    { required: true, message: '请输入电话', whitespace: true, trigger: 'blur' },
+    // 手机号的校验比较宽松
+    { pattern: /^(?:(?:\+|00)86)?1\d{10}$/, message: '电话格式不正确', trigger: ['blur', 'change'] }
+  ],
+  birthday: [{ required: true, message: '请选择出生日期', whitespace: true, trigger: 'blur' }],
+  address: [{ required: true, message: '请输入住址', whitespace: true, trigger: 'blur' }]
+})
+// 重置表单
+const reset = () => form.value = { name: '', username: '', grade: '', studentClass: '', major: 0, gender: '', email: '', birthplace: '', ethnicity: '', phone: '', birthday: '', address: '' }
 
+const formRef = ref()
+const addLoading = ref(false)
+// 发起请求增加学生
 const addStudent = () => {
-  console.log('添加学生')
-  showModal.value = false
+  formRef.value.validate().then(async (form: any) => {
+    addLoading.value = true
+    const res = await addNewStudent(form)
+    if (res.code === 0) {
+      message.success('添加成功')
+      showModal.value = false
+      await init()
+    } else {
+      message.error(res.msg)
+    }
+    addLoading.value = false
+  }, () => {})
+}
+
+// 删除学生
+const deleteStudent = async (studentId: number) => {
+  const res = await deleteStudentById(studentId)
+  if (res.code === 0) {
+    message.success('删除成功')
+    await init()
+  } else {
+    message.error(res.msg)
+  }
 }
 </script>
 

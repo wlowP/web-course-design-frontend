@@ -29,3 +29,15 @@ pnpm run dev
 
 ### TODO
 - 引入ECharts
+
+### 注意事项
+- idea/webstorm自带的git工具无法访问Github时, 尝试windows cmd执行以下命令
+```shell
+ipconfig /flushdns
+```
+- 或者项目文件夹内git bash执行以下命令
+```shell
+git config --global http.sslVerify "false"
+git config --global --unset http.proxy
+git config --global --unset https.proxy
+```

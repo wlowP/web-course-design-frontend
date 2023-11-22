@@ -69,15 +69,15 @@ const formState = ref({
 // 只有在TypeScript类型的限制下才能获得较好的代码提示
 const rules: Record<string, Rule[]> = {
   oldPassword: [
-    { required: true, message: '请先输入旧密码!' }
+    { required: true, message: '请先输入旧密码!', whitespace: true }
   ],
   newPassword: [
-    { required: true, message: '请输入新密码!' }
+    { required: true, message: '请输入新密码!', whitespace: true }
   ],
   confirmPassword: [
-    { required: true, message: '请确认你的新密码!' },
+    { required: true, message: '请确认你的新密码!', whitespace: true },
     {
-      validator: (_rule: any, value: any) => value === formState.value.newPassword ? Promise.resolve() : Promise.reject('两次输入的密码不一致!'),
+      validator: (_rule: any, value: any) => (value.trim() !== '' && value === formState.value.newPassword) ? Promise.resolve() : Promise.reject('两次输入的密码不一致!'),
       trigger: 'blur'
     }
   ]

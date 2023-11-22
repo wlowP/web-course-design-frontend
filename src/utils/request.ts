@@ -1,9 +1,9 @@
-import axios from 'axios'
+import axios, { AxiosInstance } from 'axios'
 import useUserStore from '@/stores/user'
 
 // 创建axios实例, 将来基于创建出的实例进行配置和请求
 // 这样做不会污染原始axios实例
-const request = axios.create({
+const request: AxiosInstance = axios.create({
   baseURL: 'http://localhost:8080',
   timeout: 15000
 })
@@ -43,6 +43,6 @@ export default request
 
 export interface DataResponse<T> {
   code: number,
-  message: string | null,
+  msg: string | null,
   data: T
 }

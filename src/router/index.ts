@@ -1,7 +1,7 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, Router } from 'vue-router'
 import { ch } from '@/utils/commons'
 
-const router = createRouter({
+const router: Router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/', redirect: ch('/登录') },
@@ -23,6 +23,7 @@ const router = createRouter({
         { path: ch('系统管理/菜单管理'), component: () => import('@/views/system/menu.vue') },
         { path: ch('系统管理/字典管理'), component: () => import('@/views/system/dictionary.vue') },
         { path: ch('人员管理/学生管理'), component: () => import('@/views/staff/student.vue') },
+        { path: ch('人员管理/学生信息'), component: () => import('@/views/staff/student-info.vue') },
         { path: ch('人员管理/教师管理'), component: () => import('@/views/staff/teacher.vue') },
         { path: ch('教务管理/课程管理'), component: () => import('@/views/education/course.vue') },
         { path: ch('教务管理/成绩管理'), component: () => import('@/views/education/score.vue') }

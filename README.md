@@ -28,7 +28,9 @@ pnpm run dev
 - 后续有额外内容的话会补充...
 
 ### TODO
-- 引入ECharts
+- 引入ECharts. [官网地址](https://echarts.apache.org/zh/index.html)
+  - 但是应该引入**Vue-Echarts**以适配vue项目
+
 
 ### 注意事项
 - idea/webstorm自带的git工具无法访问Github时, 尝试windows cmd执行以下命令

@@ -14,7 +14,7 @@
                :scroll="{ x: 2600 }"
                :row-class-name="(_record: any, index: any) => (index % 2 === 1 ? 'table-striped' : null)"
                @change="updateFiltersAndSorter"
-               :pagination="{ position: ['bottomRight'], defaultPageSize: 15, showQuickJumper: true, pageSizeOptions: ['10', '15', '30', '50', '100'], showTotal: (total: any, range: any) => `共 ${total} 条 当前: ${range[0]} - ${range[1]}` }"
+               :pagination="{ position: ['bottomRight'], defaultPageSize: 15, showQuickJumper: true, pageSizeOptions: ['10', '15', '30', '50', '100'], showTotal: (total: any, range: any) => `共 ${total} 条 当前: ${range[0]} - ${range[1]}` } as PaginationProps"
       >
         <!-- todo: 启用了sticky属性让表头附着视口顶部后, 划到表格底部时偶尔会出现底部有两个横向滚动条的情况, 看看能不能修复 -->
         <template #headerCell="{ column }">
@@ -23,19 +23,17 @@
           </span>
         </template>
 
-        <!-- 列搜索框 -->
-        <template
-          #customFilterDropdown="{ setSelectedKeys, selectedKeys, confirm, clearFilters, column }"
-        >
+        <!-- 列头右侧的下拉搜索框 -->
+        <template #customFilterDropdown="{ setSelectedKeys, selectedKeys, confirm, clearFilters, column }">
           <div style="padding: 8px">
             <a-input
               ref="searchInputRef"
               :placeholder="`根据 ${column.title} 搜索`"
-              :value="selectedKeys[0]"
+              :value="selectedKeys?.join(' ')"
               style="width: 188px; margin-bottom: 8px; display: block"
               @change="(e: any) => setSelectedKeys(e.target.value ? [e.target.value] : [])"
               @pressEnter="handleSearch(selectedKeys, confirm, column.dataIndex)"
-            />
+            /> <!-- 📌在@change的时候将输入的搜索内容传递给组件内部值selectedKeys, 所以不用自己加一个v-model了 -->
             <a-button
               type="primary"
               size="small"
@@ -45,7 +43,7 @@
               <template #icon><SearchOutlined /></template>
               搜索
             </a-button>
-            <a-button size="small" style="width: 90px" @click="handleReset(clearFilters)">
+            <a-button size="small" style="width: 90px" @click="handleReset(clearFilters, column)">
               重置
             </a-button>
           </div>
@@ -82,16 +80,17 @@
         <template #summary>
           <a-table-summary fixed="bottom">
             <a-table-summary-row>
-              <a-table-summary-cell :index="0" :col-span="5">
+              <a-table-summary-cell :index="0" :col-span="6">
                 <a-space>
                   <div style="width: 5em;">总数 {{ studentList.length }}</div>
-                  <a-button type="primary" :icon="h(ReloadOutlined)" @click="refresh">刷新</a-button>
+                  <a-button type="primary" :icon="h(ReloadOutlined)" @click="refresh" :loading="btnLoading">刷新</a-button>
                   <a-button type="dashed" @click="enabledSorter = {}">重置排序</a-button>
                   <a-button type="dashed" @click="enabledFilters = {}">重置过滤器</a-button>
-                  <a-button type="default" @click="enabledSorter = {}; enabledFilters = {}">重置所有筛选</a-button>
+                  <a-button type="dashed" @click="searchedKeys = {}">重置搜索</a-button>
+                  <a-button type="default" @click="enabledSorter = {}; enabledFilters = {}; searchedKeys = {}">重置所有筛选</a-button>
                 </a-space>
               </a-table-summary-cell>
-              <a-table-summary-cell :index="5" :col-span="10"/>
+              <a-table-summary-cell :index="6" :col-span="9"/>
               <a-table-summary-cell :index="15" :col-span="2">
                 <a-space>
                   <a-button type="primary" :icon="h(UserAddOutlined)" @click="showModal = true">添加学生</a-button>
@@ -166,7 +165,7 @@
       <template #footer>
         <a-button type="dashed" @click="reset">重置</a-button>
         <a-button type="default" @click="showModal = false">取消</a-button>
-        <a-button type="primary" @click="addStudent" :loading="addLoading">确认添加</a-button>
+        <a-button type="primary" @click="addStudent" :loading="btnLoading">确认添加</a-button>
       </template>
     </a-modal>
   </div>
@@ -174,9 +173,9 @@
 
 <script setup lang="ts">
 import svgStudentList from '@/assets/svg/学生管理.svg'
-import { useRouter } from 'vue-router'
-import { computed, h, reactive, ref } from 'vue'
-import { message, TableColumnType, TableProps } from 'ant-design-vue'
+import { Router, useRouter } from 'vue-router'
+import { computed, h, ref } from 'vue'
+import { message, PaginationProps, TableColumnType, TableProps } from 'ant-design-vue'
 import type { Student } from '@/types/Student'
 import { addNewStudent, deleteStudentById, getStudentList } from '@/api/student'
 import {
@@ -189,7 +188,7 @@ import {
 import type { Rule } from 'ant-design-vue/es/form'
 import { ch } from '@/utils/commons'
 
-const router = useRouter()
+const router: Router = useRouter()
 const studentList = ref<Student[]>([])
 
 const init = async () => {
@@ -206,18 +205,29 @@ const init = async () => {
 init()
 // 刷新学生列表
 const refresh = async () => {
+  btnLoading.value = true
   const res = await init()
   if (res !== null) {
     message.success('刷新成功')
   }
+  btnLoading.value = false
 }
 
 // 过滤器和排序器的状态, 用于实现受控的过滤器和排序器
 const enabledFilters = ref()
 const enabledSorter = ref()
 
+// 搜索的表单自动聚焦
+const focusSearchInputByFlag = (flag: boolean) => {
+  if (flag) {
+    setTimeout(() => {
+      searchInputRef.value.focus()
+    }, 100)
+  }
+}
+
 // 使用计算属性返回columns对象数组, 以便实现受控的过滤器, 搜索等功能
-const columns = computed<TableColumnType[]>(() => {
+const columns = computed<TableColumnType<Student>[]>(() => {
   const filters = enabledFilters.value || {}
   const sorter = enabledSorter.value || {}
   return [
@@ -230,25 +240,23 @@ const columns = computed<TableColumnType[]>(() => {
       fixed: 'left',
       customFilterDropdown: true,
       onFilter: (value: string, record: Student) => record.name.toLowerCase().includes(value.toLowerCase()),
-      onFilterDropdownOpenChange: visible => {
-        if (visible) {
-          setTimeout(() => {
-            searchInputRef.value.focus()
-          }, 100)
-        }
-      },
-      filteredValue: searchState.searchedColumn === 'name' && [ ...searchState.searchText.split(' ') ],
+      onFilterDropdownOpenChange: visible => focusSearchInputByFlag(visible),
+      filteredValue: !!searchedKeys.value.name && [ ...searchedKeys.value.name ]
     },
     {
       title: '学号',
       dataIndex: 'username',
-      width: 150
+      width: 150,
+      customFilterDropdown: true,
+      onFilter: (value: string, record: Student) => record.username.toLowerCase().includes(value.toLowerCase()),
+      onFilterDropdownOpenChange: visible => focusSearchInputByFlag(visible),
+      filteredValue: !!searchedKeys.value.username && [ ...searchedKeys.value.username ]
     },
     {
       title: '学生ID',
       dataIndex: 'studentId',
       width: 100,
-      sorter: (a, b) => a.studentId - b.studentId,
+      sorter: (a: Student, b: Student) => a.studentId - b.studentId,
       sortOrder: sorter.field === 'studentId' && sorter.order // 定义了sortOrder后就会启用排序的受控模式
     },
     {
@@ -260,11 +268,8 @@ const columns = computed<TableColumnType[]>(() => {
       title: '年级',
       dataIndex: 'grade',
       width: 100,
-      filters: [{ text: '大一', value: '大一' }, { text: '大二', value: '大二' }, {
-        text: '大三',
-        value: '大三'
-      }, { text: '大四', value: '大四' }],
-      onFilter: (value, student) => student.grade === value,
+      filters: [{ text: '大一', value: '大一' }, { text: '大二', value: '大二' }, { text: '大三', value: '大三' }, { text: '大四', value: '大四' }],
+      onFilter: (value: string, student: Student) => student.grade === value,
       filteredValue: filters.grade || null // 定义了filteredValue后就会启用过滤器的受控模式
     },
     {
@@ -283,34 +288,28 @@ const columns = computed<TableColumnType[]>(() => {
         }
         return record.major.toLowerCase().includes(value.toLowerCase())
       },
-      onFilterDropdownOpenChange: visible => {
-        if (visible) {
-          setTimeout(() => {
-            searchInputRef.value.focus()
-          }, 100)
-        }
-      },
-      filteredValue: searchState.searchedColumn === 'major' && [ ...searchState.searchText.split(' ') ],
+      onFilterDropdownOpenChange: visible => focusSearchInputByFlag(visible),
+      filteredValue: !!searchedKeys.value.major && [ ...searchedKeys.value.major ]
     },
     {
       title: '绩点',
       dataIndex: 'gpa',
       width: 100,
-      sorter: (a, b) => a.gpa - b.gpa,
+      sorter: (a: Student, b: Student) => a.gpa - b.gpa,
       sortOrder: sorter.field === 'gpa' && sorter.order
     },
     {
       title: '绩点班级排名',
       width: 140,
       dataIndex: 'rankClass',
-      sorter: (a, b) => a.rankClass - b.rankClass,
+      sorter: (a: Student, b: Student) => a.rankClass - b.rankClass,
       sortOrder: sorter.field === 'rankClass' && sorter.order
     },
     {
       title: '绩点学院排名',
       width: 140,
       dataIndex: 'rankCollege',
-      sorter: (a, b) => a.rankCollege - b.rankCollege,
+      sorter: (a: Student, b: Student) => a.rankCollege - b.rankCollege,
       sortOrder: sorter.field === 'rankCollege' && sorter.order
     },
     {
@@ -345,7 +344,7 @@ const columns = computed<TableColumnType[]>(() => {
       fixed: 'right',
       width: 150
     }
-  ]
+  ] as TableColumnType<Student>[] // 类型断言一下以免IDE报错
 })
 
 // 更新过滤器和排序器的状态
@@ -354,23 +353,21 @@ const updateFiltersAndSorter: TableProps['onChange'] = (_pagination, filters, so
   enabledSorter.value = sorter
 }
 
-const searchState = reactive({
-  searchText: '',
-  searchedColumn: '',
-})
-
-// 根据某一列的信息查询
+// 根据某一列或多列的信息查询
+// 保存每一列的搜索关键字, 用于多列搜索
+const searchedKeys = ref<Record<string, string[]>>({})
+// 搜索框的ref引用
 const searchInputRef = ref()
 
-const handleSearch = (selectedKeys: any, confirm: any, dataIndex: any) => {
+// 某一列的搜索
+const handleSearch = (selectedKeys: string[], confirm: any, dataIndex: string) => {
   confirm()
-  searchState.searchText = selectedKeys[0]
-  searchState.searchedColumn = dataIndex
+  searchedKeys.value[dataIndex] = selectedKeys[0].split(' ')
 }
 
-const handleReset = (clearFilters: any) => {
-  clearFilters({ confirm: true })
-  searchState.searchText = ''
+// 重置某一列搜索的关键字
+const handleReset = (_clearFilters: any, column: any) => {
+  searchedKeys.value[column.dataIndex] = []
 }
 
 // 添加学生
@@ -416,12 +413,14 @@ const rules = ref<Record<string, Rule[]>>({
 // 重置表单
 const reset = () => form.value = { name: '', username: '', grade: '', studentClass: '', major: 0, gender: '', email: '', birthplace: '', ethnicity: '', phone: '', birthday: '', address: '' }
 
+// 表单的ref引用
 const formRef = ref()
-const addLoading = ref(false)
+// 按钮的加载状态, 一个页面上同时应该只能有一个按钮处于加载状态
+const btnLoading = ref(false)
 // 发起请求增加学生
 const addStudent = () => {
   formRef.value.validate().then(async (form: any) => {
-    addLoading.value = true
+    btnLoading.value = true
     const res = await addNewStudent(form)
     if (res.code === 0) {
       message.success('添加成功')
@@ -430,7 +429,7 @@ const addStudent = () => {
     } else {
       message.error(res.msg)
     }
-    addLoading.value = false
+    btnLoading.value = false
   }, () => {})
 }
 

@@ -5,3 +5,23 @@
  * @param uri 需要转换的包含中文的URI字符串
  */
 export const ch = (uri: string): string => encodeURI(uri)
+
+// 对象深拷贝
+export const deepClone = (obj: any): any => {
+  // 如果参数不是对象或者是null，直接返回
+  if (typeof obj !== "object" || obj === null) {
+    return obj;
+  }
+  // 创建一个新的对象，用来存储拷贝的结果
+  let result = Array.isArray(obj) ? [] : {};
+  // 遍历原对象的属性
+  for (let key in obj) {
+    // 如果属性是自有的，不是继承的
+    if (obj.hasOwnProperty(key)) {
+      // 递归调用深拷贝函数，拷贝属性的值
+      result[key] = deepClone(obj[key]);
+    }
+  }
+  // 返回拷贝后的对象
+  return result;
+}

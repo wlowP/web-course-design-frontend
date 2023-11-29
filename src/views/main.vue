@@ -2,8 +2,15 @@
   <!-- 主页面 -->
   <div class="main">
     <a-layout style="height: 100vh;">
-      <a-layout-header class="header">
-        沙袋大学学生信息管理系统
+      <a-layout-header class="app-header">
+        <a-row style="max-height: 60px">
+          <a-col :span="5" style="background-color: pink;">
+            教务管理系统
+          </a-col>
+          <a-col :span="7" :offset="12" style="background-color: deepskyblue;">
+            选项
+          </a-col>
+        </a-row>
       </a-layout-header>
       <a-layout>
         <a-layout-sider collapsed-width="50"
@@ -17,7 +24,7 @@
               <MenuFoldOutlined v-else/>
             </a-button>
             <a-menu
-              style="border-radius: 10px"
+              style="border-radius: 10px; user-select: none;"
               v-model:openKeys="menuState.openKeys"
               v-model:selectedKeys="menuState.selectedKeys"
               mode="inline"
@@ -36,7 +43,7 @@
         </a-layout-content>
       </a-layout>
       <a-layout-footer class="footer">
-        Footer
+        版权所有 ©2023 wlow 保留所有权利
       </a-layout-footer>
     </a-layout>
   </div>
@@ -101,7 +108,7 @@ const menuItems = reactive<any>([
   // 不检测menuItems[0].children是否存在的话TypeScript会报错
   if (userinfo) {
     switch (store.userInfo.userType) {
-      case 'ROLE_ADMIN': {
+      case 'ADMIN': {
         // 个人信息: + 项目文档, + 项目视频
         userinfo.push({
           key: ch('/主页/个人信息/项目文档'),
@@ -152,14 +159,14 @@ const menuItems = reactive<any>([
         })
         break
       }
-      case 'ROLE_TEACHER': {
+      case 'TEACHER': {
         userinfo.push({
           key: ch('/主页/个人信息/个人简介'),
           label: '个人简介'
         })
         break
       }
-      case 'ROLE_STUDENT': {
+      case 'STUDENT': {
         userinfo.push({
           key: ch('/主页/个人信息/项目文档'),
           label: '项目文档'
@@ -185,12 +192,15 @@ const menuItems = reactive<any>([
 
 <style scoped lang="scss">
 .main {
-  .header {
-    padding: 5px;
-    text-align: center;
+  .app-header {
+    padding-left: 0;
+    padding-right: 0;
     color: white;
     height: 60px;
     background-color: #7dbcea;
+    .ant-col {
+      height: 60px;
+    }
   }
 
   .content {

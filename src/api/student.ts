@@ -15,3 +15,27 @@ export const addNewStudent = async (form): Promise<DataResponse> => {
 export const deleteStudentById = async (studentId: number): Promise<DataResponse> => {
   return await request.post('/student/deleteStudent', { data: { studentId } })
 }
+
+export const getStudentById = async (studentId: number): Promise<DataResponse> => {
+  return await request.post('/student/selectStudent', { data: { studentId } })
+}
+
+export const getStudentActivityById = async (studentId: number): Promise<DataResponse> => {
+  return await request.post('/studentAdvanced/selectStudentAdvancedVOListByStudentId', { data: { studentId } })
+}
+
+export const updateStudent = async (form): Promise<DataResponse> => {
+  return await request.post('/student/updateStudent', { data: form })
+}
+
+export const updateStudentActivity = async (form): Promise<DataResponse> => {
+  return await request.post('/studentAdvanced/updateStudentAdvanced', { data: form })
+}
+
+export const addNewStudentActivity = async (form): Promise<DataResponse> => {
+  return await request.post('/studentAdvanced/insertStudentAdvanced', { data: form })
+}
+
+export const deleteStudentActivity = async (studentAdvancedId: number): Promise<DataResponse> => {
+  return await request.post('/studentAdvanced/deleteStudentAdvanced', { data: { studentAdvancedId } })
+}

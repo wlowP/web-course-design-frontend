@@ -5,12 +5,13 @@
                    :avatar="{ src: svgStudentList, shape: 'square' }"
     >
       <template #title><span class="title">学生管理</span></template>
-      <span class="tip">展示并管理学生的各项信息</span>
+      <span class="tip">展示学生的各项信息</span>
     </a-page-header>
     <a-card bordered>
       <a-table :columns="columns"
                :data-source="studentList"
                bordered sticky
+               :loading="tableLoading"
                :scroll="{ x: 2600 }"
                :row-class-name="(_record: any, index: any) => (index % 2 === 1 ? 'table-striped' : null)"
                @change="updateFiltersAndSorter"
@@ -55,15 +56,37 @@
         <!-- record就对应每个学生对象 -->
         <template #bodyCell="{ column, record }">
           <template v-if="column.title === '学号'">
-            <a-typography-paragraph copyable>
+            <a-typography-paragraph copyable class="clearMargin">
               {{ record.username }}
             </a-typography-paragraph>
           </template>
+          <template v-else-if="column.title === '性别'">
+            {{
+              record.gender === 1 ? '男' :
+              record.gender === 2 ? '女' : '未知'
+            }}
+          </template>
+          <template v-else-if="column.title === '年级'">
+            {{
+              record.grade === 1 ? '大一' :
+              record.grade === 2 ? '大二' :
+              record.grade === 3 ? '大三' :
+              record.grade === 4 ? '大四' : '其他'
+            }}
+          </template>
+          <template v-else-if="column.title === '专业'">
+            {{
+              record.major === 1 ? '软件工程' :
+              record.major === 2 ? '数字媒体技术' :
+              record.major === 3 ? '数据科学与大数据技术' : '暂无'
+            }}
+          </template>
           <template v-else-if="column.title === '操作'">
             <a-space>
-              <a-button type="default" @click="router.push(ch('/主页/人员管理/学生信息'))">编辑</a-button>
+              <!-- 这里跳转时通过history.state传递对象参数. 这样就可以不用将参数暴露在地址栏url中了 -->
+              <a-button type="default" @click="router.push({ path: ch('/主页/人员管理/学生信息'), state: { studentId: record.studentId } })">编辑</a-button>
               <a-popconfirm title="是否确定要删除?"
-                            ok-text="确定"
+                            ok-text="删除"
                             ok-type="danger"
                             :ok-button-props="{ danger: true, type: 'primary' }"
                             cancel-text="取消"
@@ -134,7 +157,11 @@
             <a-input-number v-model:value="form.studentClass" addon-after="班" :min="1" :max="20"/>
           </a-form-item>
           <a-form-item label="专业" name="major">
-            <a-input v-model:value="form.major"/>
+            <a-select v-model:value="form.major">
+              <a-select-option :value="1">软件工程</a-select-option>
+              <a-select-option :value="2">数字媒体技术</a-select-option>
+              <a-select-option :value="3">数据科学与大数据技术</a-select-option>
+            </a-select>
           </a-form-item>
           <a-form-item label="性别" name="gender">
             <a-radio-group v-model:value="form.gender">
@@ -191,13 +218,18 @@ import { ch } from '@/utils/commons'
 const router: Router = useRouter()
 const studentList = ref<Student[]>([])
 
+// 表格的加载状态
+const tableLoading = ref(false)
 const init = async () => {
+  tableLoading.value = true
   const res = await getStudentList()
   if (res.code === 0) {
     studentList.value = res.data
+    tableLoading.value = false
     return res.data
   } else {
     message.error('获取学生列表失败')
+    tableLoading.value = false
     return null
   }
 }
@@ -268,8 +300,8 @@ const columns = computed<TableColumnType<Student>[]>(() => {
       title: '年级',
       dataIndex: 'grade',
       width: 100,
-      filters: [{ text: '大一', value: '大一' }, { text: '大二', value: '大二' }, { text: '大三', value: '大三' }, { text: '大四', value: '大四' }],
-      onFilter: (value: string, student: Student) => student.grade === value,
+      filters: [{ text: '大一', value: 1 }, { text: '大二', value: 2 }, { text: '大三', value: 3 }, { text: '大四', value: 4 }],
+      onFilter: (value: number, student: Student) => student.grade === value,
       filteredValue: filters.grade || null // 定义了filteredValue后就会启用过滤器的受控模式
     },
     {
@@ -281,15 +313,9 @@ const columns = computed<TableColumnType<Student>[]>(() => {
       title: '专业',
       dataIndex: 'major',
       width: 250,
-      customFilterDropdown: true,
-      onFilter: (value: string, record: Student) => {
-        if (!record.major) { // 有人专业为空的话就不显示
-          return false
-        }
-        return record.major.toLowerCase().includes(value.toLowerCase())
-      },
-      onFilterDropdownOpenChange: visible => focusSearchInputByFlag(visible),
-      filteredValue: !!searchedKeys.value.major && [ ...searchedKeys.value.major ]
+      filters: [{text: '软件工程', value: 1}, {text: '数字媒体技术', value: 2}, {text: '数据科学与大数据技术', value: 3}],
+      onFilter: (value: number, student: Student) => student.major === value,
+      filteredValue: filters.major || null // 定义了filteredValue后就会启用过滤器的受控模式
     },
     {
       title: '绩点',
@@ -379,7 +405,7 @@ const form = ref({
   username: '',
   grade: '',
   studentClass: '',
-  major: 0,
+  major: '',
   gender: '',
   email: '',
   birthplace: '',
@@ -389,12 +415,12 @@ const form = ref({
   address: ''
 })
 // 添加学生的表单验证规则
-const rules = ref<Record<string, Rule[]>>({
+const rules: Record<string, Rule[]> = {
   name: [{ required: true, message: '请输入姓名', whitespace: true, trigger: 'blur' }],
   username: [{ required: true, message: '请输入学号', whitespace: true, trigger: 'blur' }],
   grade: [{ required: true, type: 'number', message: '请选择年级', whitespace: true, trigger: 'blur' }],
   studentClass: [{ required: true, type: 'number', message: '请输入班级', whitespace: true, trigger: 'blur' }],
-  major: [{ required: true, message: '请输入专业', whitespace: true, trigger: 'blur' }],
+  major: [{ required: true, type: 'number', message: '请选择专业', whitespace: true, trigger: 'blur' }],
   gender: [{ required: true, type: 'number', message: '请选择性别', whitespace: true, trigger: 'blur' }],
   email: [
     { required: true, message: '请输入邮箱', whitespace: true, trigger: 'blur' },
@@ -409,9 +435,9 @@ const rules = ref<Record<string, Rule[]>>({
   ],
   birthday: [{ required: true, message: '请选择出生日期', whitespace: true, trigger: 'blur' }],
   address: [{ required: true, message: '请输入住址', whitespace: true, trigger: 'blur' }]
-})
+}
 // 重置表单
-const reset = () => form.value = { name: '', username: '', grade: '', studentClass: '', major: 0, gender: '', email: '', birthplace: '', ethnicity: '', phone: '', birthday: '', address: '' }
+const reset = () => form.value = { name: '', username: '', grade: '', studentClass: '', major: '', gender: '', email: '', birthplace: '', ethnicity: '', phone: '', birthday: '', address: '' }
 
 // 表单的ref引用
 const formRef = ref()

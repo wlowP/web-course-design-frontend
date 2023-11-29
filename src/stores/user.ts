@@ -7,7 +7,7 @@ const useUserStore = defineStore('user', () => {
     username: '',
     token: '123',
     id: 0,
-    userType: 'ROLE_ADMIN' // ROLE_ADMIN, ROLE_STUDENT, ROLE_TEACHER
+    userType: 'ADMIN' // ADMIN, STUDENT, TEACHER
   })
 
   // 可以修改的计算属性

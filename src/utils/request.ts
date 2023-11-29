@@ -44,5 +44,5 @@ export default request
 export interface DataResponse<T> {
   code: number,
   msg: string | null,
-  data: T
+  data: T | null
 }

@@ -84,11 +84,15 @@ ol {
   background-color: #fafafa;
 }
 
-// 隐藏表格原本的横向滚动条
-/*.ant-table-body {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}*/
+.clearMargin {
+  margin: 0 !important;
+}
+
+.clearPadding {
+  padding: 0 !important;
+}
+
+.stripBox {
+  margin: 0 !important;
+  padding: 0 !important;
+}

@@ -68,12 +68,8 @@ const formState = ref({
 // 各项表单的校验规则
 // 只有在TypeScript类型的限制下才能获得较好的代码提示
 const rules: Record<string, Rule[]> = {
-  oldPassword: [
-    { required: true, message: '请先输入旧密码!', whitespace: true }
-  ],
-  newPassword: [
-    { required: true, message: '请输入新密码!', whitespace: true }
-  ],
+  oldPassword: [{ required: true, message: '请先输入旧密码!', whitespace: true }],
+  newPassword: [{ required: true, message: '请输入新密码!', whitespace: true }],
   confirmPassword: [
     { required: true, message: '请确认你的新密码!', whitespace: true },
     {
@@ -91,7 +87,5 @@ const onFinish = () => {
 </script>
 
 <style scoped>
-.renew-password {
 
-}
 </style>

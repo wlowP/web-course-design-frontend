@@ -1,13 +1,15 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+import type { UserInfo } from '@/types/User'
 
 // 用户信息状态
 const useUserStore = defineStore('user', () => {
-  const userInfo = ref({
-    username: '',
-    token: '123',
-    id: 0,
-    userType: 'ADMIN' // ADMIN, STUDENT, TEACHER
+  const userInfo = ref<UserInfo>({
+    userId: 0,
+    name: '',
+    userType: 0, // 1 -> ADMIN, 2 -> STUDENT, 3 -> TEACHER
+    avatar: '',
+    token: ''
   })
 
   // 可以修改的计算属性
@@ -20,7 +22,8 @@ const useUserStore = defineStore('user', () => {
 }, {
   persist: {
     key: id => 'KEY__OF_' + id.toUpperCase(),
-    storage: localStorage
+    storage: localStorage,
+    paths: ['userInfo']
   }
 })
 

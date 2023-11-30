@@ -42,6 +42,7 @@ export interface StudentActivityItem {
   studentAdvancedId: number,
   studentId: number
   advancedType: 1 | 2 | 3 | 4 | 5 | 6
+  title: string
   content: string
   duration: number
   updateTime: string
@@ -85,6 +86,7 @@ export const studentInitialState = (): Student => ({
   username: ''
 })
 
+// 学生活动类型的映射关系
 export const StudentActivityType: Record<number, { label: string, dataIndex: 'honors' | 'competitions' | 'disciplinary' | 'clubs' | 'volunteer' | 'internship' }> = {
   1: { label: '个人荣誉', dataIndex: 'honors' },
   2: { label: '竞赛经历', dataIndex: 'competitions' },

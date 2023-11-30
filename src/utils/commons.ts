@@ -25,3 +25,6 @@ export const deepClone = (obj: any): any => {
   // 返回拷贝后的对象
   return result;
 }
+
+// 获取当前时间
+export const formatTime = (date: Date): string => `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`

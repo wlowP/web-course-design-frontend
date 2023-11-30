@@ -228,7 +228,7 @@ const init = async () => {
     tableLoading.value = false
     return res.data
   } else {
-    message.error('获取学生列表失败')
+    message.error(res.msg)
     tableLoading.value = false
     return null
   }

@@ -28,7 +28,8 @@ const router: Router = createRouter({
         { path: ch('教务管理/课程管理'), component: () => import('@/views/education/course.vue') },
         { path: ch('教务管理/成绩管理'), component: () => import('@/views/education/score.vue') }
       ]
-    }
+    },
+    // todo: 404页面
   ]
 })
 

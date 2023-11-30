@@ -1,28 +1,9 @@
 <template>
-  <a-collapse v-model:activeKey="activeKey" @change="changeActiveKey">
-    <a-collapse-panel key="1" header="This is panel header 1">
-      <a-collapse default-active-key="4">
-        <a-collapse-panel key="4" header="This is panel nest panel">
-          <p>{{ text }}</p>
-        </a-collapse-panel>
-      </a-collapse>
-    </a-collapse-panel>
-    <a-collapse-panel key="2" header="This is panel header 2">
-      <p>{{ text }}</p>
-    </a-collapse-panel>
-    <a-collapse-panel key="3" header="This is panel header 3">
-      <p>{{ text }}</p>
-    </a-collapse-panel>
-  </a-collapse>
+  <div>
+    <h1>test</h1>
+  </div>
 </template>
 <script lang="ts" setup>
-import { ref } from 'vue';
 
-const activeKey = ref([]);
-const text = `A dog is a type of domesticated animal.Known for its loyalty and faithfulness,it can be found as a welcome guest in many households across the world.`;
-
-const changeActiveKey = (key: string) => {
-  console.log(key);
-};
 </script>
 

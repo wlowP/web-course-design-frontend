@@ -3,24 +3,34 @@
   <div class="login">
     你好
     <div>这是登录页面</div>
-    <a-button type="default" @click="router.push(ch('/主页'))">登录</a-button>
-    <a-button @click="test">测试</a-button>
+    <a-button type="default" @click="login">登录为管理员</a-button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { ch } from '@/utils/commons'
-import request from '@/utils/request'
+import request, { DataResponse } from '@/utils/request'
 import useUserStore from '@/stores/user'
+import type { UserInfo } from '@/types/User'
+import { message } from 'ant-design-vue'
 
 const router = useRouter()
 const store = useUserStore()
 
-const test = async () => {
-  const res = await request.post('http://localhost:9090/auth/helloWorld')
-  console.log('res = ', res)
-  store.token = 'some token string'
+const login = async () => {
+  const res = await request.post('/auth/login', {
+    username: 'admin',
+    password: 123
+  }) as DataResponse<UserInfo>
+
+  if (res.code === 0) {
+    store.userInfo = res.data
+    message.success(`欢迎回来, ${res.data.name} ~`)
+    await router.push(ch('/主页'))
+  } else {
+    message.error(res.msg)
+  }
 }
 </script>
 

@@ -87,5 +87,7 @@ const onFinish = () => {
 </script>
 
 <style scoped>
-
+.renew-password {
+  width: 100%;
+}
 </style>

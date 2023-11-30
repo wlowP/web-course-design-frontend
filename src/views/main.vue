@@ -4,11 +4,17 @@
     <a-layout style="height: 100vh;">
       <a-layout-header class="app-header">
         <a-row style="max-height: 60px">
-          <a-col :span="5" style="background-color: pink;">
-            教务管理系统
+          <a-col class="logo" :span="5" style="background-color: pink;">
+            教务管理系统, 这里是logo
           </a-col>
           <a-col :span="7" :offset="12" style="background-color: deepskyblue;">
-            选项
+            <a-row class="status">
+              <a-avatar class="avatar" :src="store.userInfo.avatar"/>
+              <div style="height: 60px; line-height: 30px">
+                <div>您好, {{ store.userInfo.name }}~</div>
+                <div>欢迎使用教务管理系统 <span>{{ time }}</span></div>
+              </div>
+            </a-row>
           </a-col>
         </a-row>
       </a-layout-header>
@@ -34,11 +40,12 @@
           </div>
         </a-layout-sider>
         <a-layout-content class="content">
-          <!-- todo: 用Transition组件加点页面切换的动画效果 -->
           <router-view v-slot="{ Component }">
-            <keep-alive>
-              <component :is="Component"/>
-            </keep-alive>
+            <transition name="page" mode="out-in">
+              <keep-alive>
+                <component :is="Component"/>
+              </keep-alive>
+            </transition>
           </router-view>
         </a-layout-content>
       </a-layout>
@@ -50,7 +57,7 @@
 </template>
 
 <script setup lang="ts">
-import { h, reactive, ref, watch } from 'vue'
+import { h, onMounted, reactive, ref, watch } from 'vue'
 import {
   AppstoreOutlined,
   DesktopOutlined,
@@ -61,7 +68,7 @@ import {
   PieChartOutlined,
 } from '@ant-design/icons-vue'
 import useUserStore from '@/stores/user'
-import { ch } from '@/utils/commons'
+import { ch, formatTime } from '@/utils/commons'
 import { useRoute, useRouter } from 'vue-router'
 
 const store = useUserStore()
@@ -71,6 +78,14 @@ const route = useRoute()
 // 及时根据路由变化更新菜单选中项
 watch(() => route.path, () => {
   menuState.value.selectedKeys = [route.path]
+})
+
+// 当前系统时间
+const time = ref<string>(formatTime(new Date()))
+onMounted(() => {
+  setInterval(() => {
+    time.value = formatTime(new Date())
+  }, 1000)
 })
 
 // 菜单状态
@@ -108,7 +123,7 @@ const menuItems = reactive<any>([
   // 不检测menuItems[0].children是否存在的话TypeScript会报错
   if (userinfo) {
     switch (store.userInfo.userType) {
-      case 'ADMIN': {
+      case 1: {
         // 个人信息: + 项目文档, + 项目视频
         userinfo.push({
           key: ch('/主页/个人信息/项目文档'),
@@ -159,14 +174,7 @@ const menuItems = reactive<any>([
         })
         break
       }
-      case 'TEACHER': {
-        userinfo.push({
-          key: ch('/主页/个人信息/个人简介'),
-          label: '个人简介'
-        })
-        break
-      }
-      case 'STUDENT': {
+      case 2: {
         userinfo.push({
           key: ch('/主页/个人信息/项目文档'),
           label: '项目文档'
@@ -174,6 +182,13 @@ const menuItems = reactive<any>([
           key: ch('/主页/个人信息/项目视频'),
           label: '项目视频'
         }, {
+          key: ch('/主页/个人信息/个人简介'),
+          label: '个人简介'
+        })
+        break
+      }
+      case 3: {
+        userinfo.push({
           key: ch('/主页/个人信息/个人简介'),
           label: '个人简介'
         })
@@ -187,7 +202,6 @@ const menuItems = reactive<any>([
     label: '📌📌测试页面'
   })
 })()
-
 </script>
 
 <style scoped lang="scss">
@@ -198,6 +212,15 @@ const menuItems = reactive<any>([
     color: white;
     height: 60px;
     background-color: #7dbcea;
+
+    .status {
+      height: 60px;
+      display: flex;
+      align-items: center;
+      .avatar {
+        margin-right: 20px;
+      }
+    }
     .ant-col {
       height: 60px;
     }
@@ -205,10 +228,23 @@ const menuItems = reactive<any>([
 
   .content {
     padding: 5px;
-    //color: white;
-    //background-color: #108ee9;
     max-height: calc(100vh - 60px - 25px);
-    overflow: auto;
+    overflow: hidden auto;
+    // 过渡组件的类名, 默认是v-enter-from...
+    .page-enter-active {
+      transition: all 0.2s;
+    }
+    .page-leave-active {
+      transition: all 0.1s;
+    }
+    .page-enter-from{
+      transform: translateY(-20px);
+      opacity: 0;
+    }
+    .page-leave-to {
+      transform: translateX(20px);
+      opacity: 0;
+    }
   }
 
   .sider {

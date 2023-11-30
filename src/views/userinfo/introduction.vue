@@ -9,7 +9,5 @@
 </script>
 
 <style scoped>
-.introduction {
 
-}
 </style>

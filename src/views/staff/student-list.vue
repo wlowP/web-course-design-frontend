@@ -274,8 +274,7 @@ const columns = computed<TableColumnType<Student>[]>(() => {
       onFilter: (value: string, record: Student) => record.name.toLowerCase().includes(value.toLowerCase()),
       onFilterDropdownOpenChange: visible => focusSearchInputByFlag(visible),
       filteredValue: !!searchedKeys.value.name && [ ...searchedKeys.value.name ]
-    },
-    {
+    }, {
       title: '学号',
       dataIndex: 'username',
       width: 150,
@@ -283,89 +282,77 @@ const columns = computed<TableColumnType<Student>[]>(() => {
       onFilter: (value: string, record: Student) => record.username.toLowerCase().includes(value.toLowerCase()),
       onFilterDropdownOpenChange: visible => focusSearchInputByFlag(visible),
       filteredValue: !!searchedKeys.value.username && [ ...searchedKeys.value.username ]
-    },
-    {
+    }, {
       title: '学生ID',
       dataIndex: 'studentId',
       width: 100,
       sorter: (a: Student, b: Student) => a.studentId - b.studentId,
       sortOrder: sorter.field === 'studentId' && sorter.order // 定义了sortOrder后就会启用排序的受控模式
-    },
-    {
+    }, {
       title: '性别',
       dataIndex: 'gender',
+      filters: [{ text: '男', value: 1 }, { text: '女', value: 2 }],
+      onFilter: (value: number, student: Student) => student.gender === value,
+      filteredValue: filters.gender || null,
       width: 100
-    },
-    {
+    }, {
       title: '年级',
       dataIndex: 'grade',
       width: 100,
       filters: [{ text: '大一', value: 1 }, { text: '大二', value: 2 }, { text: '大三', value: 3 }, { text: '大四', value: 4 }],
       onFilter: (value: number, student: Student) => student.grade === value,
       filteredValue: filters.grade || null // 定义了filteredValue后就会启用过滤器的受控模式
-    },
-    {
+    }, {
       title: '班级',
       dataIndex: 'studentClass',
       width: 100
-    },
-    {
+    }, {
       title: '专业',
       dataIndex: 'major',
       width: 250,
       filters: [{text: '软件工程', value: 1}, {text: '数字媒体技术', value: 2}, {text: '数据科学与大数据技术', value: 3}],
       onFilter: (value: number, student: Student) => student.major === value,
       filteredValue: filters.major || null // 定义了filteredValue后就会启用过滤器的受控模式
-    },
-    {
+    }, {
       title: '绩点',
       dataIndex: 'gpa',
       width: 100,
       sorter: (a: Student, b: Student) => a.gpa - b.gpa,
       sortOrder: sorter.field === 'gpa' && sorter.order
-    },
-    {
+    }, {
       title: '绩点班级排名',
       width: 140,
       dataIndex: 'rankClass',
       sorter: (a: Student, b: Student) => a.rankClass - b.rankClass,
       sortOrder: sorter.field === 'rankClass' && sorter.order
-    },
-    {
+    }, {
       title: '绩点学院排名',
       width: 140,
       dataIndex: 'rankCollege',
       sorter: (a: Student, b: Student) => a.rankCollege - b.rankCollege,
       sortOrder: sorter.field === 'rankCollege' && sorter.order
-    },
-    {
+    }, {
       title: '籍贯',
       dataIndex: 'birthplace',
       width: 150
-    },
-    {
+    }, {
       title: '住址',
       dataIndex: 'address',
       width: 150
-    },
-    {
+    }, {
       title: '民族',
       dataIndex: 'ethnicity',
       width: 100
-    },
-    {
+    }, {
       title: '邮箱',
       dataIndex: 'email'
-    },
-    {
+    }, {
       title: '电话',
       dataIndex: 'phone'
-    },
-    {
+    }, {
       title: '出生日期',
       dataIndex: 'birthday'
-    },
-    {
+    }, {
       title: '操作',
       fixed: 'right',
       width: 150

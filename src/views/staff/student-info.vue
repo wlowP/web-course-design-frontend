@@ -264,7 +264,7 @@ const initStudentActivity = async () => {
   if (res.code === 0) {
     studentActivity.value = res.data
   } else {
-    message.error('获取学生活动信息失败')
+    message.error(res.msg)
   }
 }
 

@@ -1,25 +1,21 @@
 // 既然都用了TypeScript 不用一下类型就太可惜了
 
 // 学生的基本类型
-export interface Student {
+import type { User } from '@/types/User'
+import { UserInitialState } from '@/types/User'
+
+export interface Student extends User{
   studentId: number
-  name: string // * (可请求接口修改)
-  major: 1 | 2 | 3 // *
-  grade: 1 | 2 | 3 | 4 | 5 // * // 所属年级
+  major: 1 | 2 | 3
+  grade: 1 | 2 | 3 | 4 | 5
   gpa: number
-  studentClass: number // *
+  studentClass: number
   rankClass: number
   rankCollege: number
-  username: string // *
-  photo: string | null
-  userType: 'ADMIN' | 'STUDENT' | 'TEACHER'
-  gender: 1 | 2 // *
-  birthday: string // *
-  ethnicity: string // *
-  birthplace: string // *
-  address: string // *
-  phone: string // *
-  email: string // *
+  birthday: string
+  ethnicity: string
+  birthplace: string
+  address: string
 }
 
 // 学生的活动类型, 比如参加过的竞赛, 社团, 志愿者, 实习等等
@@ -69,21 +65,22 @@ export const studentInitialState = (): Student => ({
   address: '',
   birthday: '',
   birthplace: '',
-  email: '',
   ethnicity: '',
-  gender: '未知',
   gpa: 0,
   grade: '',
-  major: '',
-  name: '',
-  phone: '',
-  photo: '',
   rankClass: 0,
   rankCollege: 0,
   studentClass: 0,
   studentId: 0,
-  userType: 'STUDENT',
-  username: ''
+  major: '',
+  // gender: 0,
+  // email: '',
+  // name: '',
+  // phone: '',
+  // photo: '',
+  // username: ''
+  ...UserInitialState(),
+  userType: 2
 })
 
 // 学生活动类型的映射关系

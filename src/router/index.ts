@@ -22,9 +22,10 @@ const router: Router = createRouter({
         { path: ch('个人信息/个人简介'), component: () => import('@/views/userinfo/introduction.vue') },
         { path: ch('系统管理/菜单管理'), component: () => import('@/views/system/menu.vue') },
         { path: ch('系统管理/字典管理'), component: () => import('@/views/system/dictionary.vue') },
-        { path: ch('人员管理/学生管理'), component: () => import('@/views/staff/student.vue') },
+        { path: ch('人员管理/学生管理'), component: () => import('@/views/staff/student-list.vue') },
         { path: ch('人员管理/学生信息'), component: () => import('@/views/staff/student-info.vue') },
-        { path: ch('人员管理/教师管理'), component: () => import('@/views/staff/teacher.vue') },
+        { path: ch('人员管理/教师管理'), component: () => import('@/views/staff/teacher-list.vue') },
+        { path: ch('人员管理/教师信息'), component: () => import('@/views/staff/teacher-info.vue') },
         { path: ch('教务管理/课程管理'), component: () => import('@/views/education/course.vue') },
         { path: ch('教务管理/成绩管理'), component: () => import('@/views/education/score.vue') }
       ]

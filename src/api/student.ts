@@ -18,7 +18,7 @@ export const deleteStudentById = async (studentId: number): Promise<DataResponse
   return await request.post('/student/deleteStudent', { data: { studentId } })
 }
 
-// 获取学生信息
+// 获取一个学生的信息
 export const getStudentById = async (studentId: number): Promise<DataResponse> => {
   return await request.post('/student/selectStudent', { data: { studentId } })
 }

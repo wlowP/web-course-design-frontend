@@ -24,3 +24,8 @@ export const getTeacherById = async (teacherId: number): Promise<DataResponse> =
 export const getTeacherInfoById = async (teacherId: number): Promise<DataResponse> => {
   return await request.post('/teacher/selectTeacherInfo', { data: { teacherId } })
 }
+
+// 更新教师信息
+export const updateTeacherInfo = async (form): Promise<DataResponse> => {
+  return await request.post('/teacher/updateTeacher', { data: form })
+}

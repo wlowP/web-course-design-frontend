@@ -12,7 +12,7 @@
                :data-source="teacherList"
                bordered sticky
                :loading="tableLoading"
-               :scroll="{ x: 2000 }"
+               :scroll="{ x: 1800 }"
                :row-class-name="(_record: any, index: any) => (index % 2 === 1 ? 'table-striped' : null)"
                @change="updateFiltersAndSorter"
                :pagination="{ position: ['bottomRight'], defaultPageSize: 15, showQuickJumper: true, pageSizeOptions: ['10', '15', '30', '50', '100'], showTotal: (total: any, range: any) => `共 ${total} 条 当前: ${range[0]} - ${range[1]}` } as PaginationProps"
@@ -257,16 +257,20 @@ const columns = computed<TableColumnType<Teacher>[]>(() => {
       width: 100
     }, {
       title: '邮箱',
-      dataIndex: 'email'
+      dataIndex: 'email',
+      width: 250
     }, {
       title: '电话',
-      dataIndex: 'phone'
+      dataIndex: 'phone',
+      width: 150
     }, {
       title: '职务',
-      dataIndex: 'position'
+      dataIndex: 'position',
+      width: 170
     }, {
       title: '学位',
-      dataIndex: 'degree'
+      dataIndex: 'degree',
+      width: 150
     }, {
       title: '所在学院',
       dataIndex: 'college',

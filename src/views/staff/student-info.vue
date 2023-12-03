@@ -20,8 +20,8 @@
               :active-tab-key="activeKey"
               @tabChange="(key: string) => activeKey = key"
       >
-        <transition-group name="card-tab">
-          <div v-show="activeKey === 'basic'" :key="1" class="basic">
+        <transition name="card-tab" mode="out-in">
+          <div v-if="activeKey === 'basic'" class="basic">
             <a-descriptions bordered title="基本信息">
               <template #extra>
                 <a-space>
@@ -37,8 +37,7 @@
               </template>
               <!-- types/student中的属性都展示了, photo在上面, userType不用展示 -->
               <a-descriptions-item label="学生ID">
-                <a-input-number v-if="editBasicInfo" v-model:value="studentEdit.studentId"/>
-                <span v-else>{{ student.studentId }}</span>
+                {{ student.studentId }}
               </a-descriptions-item>
               <a-descriptions-item label="姓名">
                 <a-input v-if="editBasicInfo" v-model:value="studentEdit.name"/>
@@ -57,13 +56,13 @@
                   <a-select-option :value="5">其他</a-select-option>
                 </a-select>
                 <span v-else>
-                {{
+                  {{
                     student.grade === 1 ? '大一' :
-                      student.grade === 2 ? '大二' :
-                        student.grade === 3 ? '大三' :
-                          student.grade === 4 ? '大四' : '其他'
+                    student.grade === 2 ? '大二' :
+                    student.grade === 3 ? '大三' :
+                    student.grade === 4 ? '大四' : '其他'
                   }}
-              </span>
+                </span>
               </a-descriptions-item>
               <a-descriptions-item label="班级">
                 <a-input-number v-if="editBasicInfo" v-model:value="studentEdit.studentClass" :min="1" :max="20"/>
@@ -76,12 +75,12 @@
                   <a-select-option :value="3">数据科学与大数据技术</a-select-option>
                 </a-select>
                 <span v-else>
-                {{
+                  {{
                     student.major === 1 ? '软件工程' :
-                      student.major === 2 ? '数字媒体技术' :
-                        student.major === 3 ? '数据科学与大数据技术' : '暂无'
+                    student.major === 2 ? '数字媒体技术' :
+                    student.major === 3 ? '数据科学与大数据技术' : '暂无'
                   }}
-              </span>
+                </span>
               </a-descriptions-item>
               <a-descriptions-item label="绩点">
                 {{ student.gpa }}
@@ -102,11 +101,11 @@
                   <a-radio :value="2">女</a-radio>
                 </a-radio-group>
                 <span v-else>
-                {{
+                  {{
                     student.gender === 1 ? '男' :
-                      student.gender === 2 ? '女' : '未知'
+                    student.gender === 2 ? '女' : '未知'
                   }}
-             </span>
+               </span>
               </a-descriptions-item>
               <a-descriptions-item label="邮箱">
                 <a-input v-if="editBasicInfo" v-model:value="studentEdit.email"/>
@@ -130,7 +129,7 @@
               </a-descriptions-item>
             </a-descriptions>
           </div>
-          <div v-show="activeKey === 'activity'" :key="2" class="activity">
+          <div v-else-if="activeKey === 'activity'" class="activity">
             <a-collapse v-model:activeKey="activeKeyCollapse">
               <a-collapse-panel v-for="(type, id) in StudentActivityType"
                                 :key="id"
@@ -213,7 +212,7 @@
               </a-card>
             </a-modal>
           </div>
-        </transition-group>
+        </transition>
       </a-card>
     </a-space>
   </div>
@@ -319,11 +318,11 @@ const editSaveBasicInfo = () => {
       message.error(errors[0].message)
       return
     }
-    editBasicInfo.value = false
     const res = await updateStudent(fields)
     if (res.code === 0) {
       message.success('保存成功')
-      student.value = fields as Student
+      student.value = deepClone(fields)
+      editBasicInfo.value = false
     } else {
       message.error(res.msg)
     }

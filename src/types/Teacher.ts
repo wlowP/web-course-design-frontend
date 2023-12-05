@@ -1,5 +1,6 @@
 import type { User } from '@/types/User'
 import { UserInitialState } from '@/types/User'
+import { UserType } from '@/types/Enums'
 
 export interface Teacher extends User{
   teacherId: number
@@ -20,7 +21,7 @@ export const TeacherInitialState = (): Teacher => ({
   degree: '',
   college: '',
   ...UserInitialState(),
-  userType: 3
+  userType: UserType.TEACHER
 })
 
 export const TeacherInfoInitialState = (): TeacherInfo => ({

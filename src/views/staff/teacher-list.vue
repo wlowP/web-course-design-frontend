@@ -74,7 +74,7 @@
                             cancel-text="取消"
                             @confirm="deleteTeacher(record.teacherId)"
               >
-                <template #icon><question-circle-outlined style="color: red" /></template>
+                <template #icon><question-circle-outlined style="color: red"/></template>
                 <a-button type="primary" danger>删除</a-button>
               </a-popconfirm>
             </a-space>
@@ -148,7 +148,7 @@
         </a-form>
       </a-card>
       <template #footer>
-        <a-button type="dashed" @click="reset">重置</a-button>
+        <a-button type="dashed" @click="formRef.resetFields()">重置</a-button>
         <a-button type="default" @click="showModal = false">取消</a-button>
         <a-button type="primary" @click="addTeacher" :loading="btnLoading">确认添加</a-button>
       </template>
@@ -206,7 +206,7 @@ const searchInputRef = ref()
 
 const handleSearch = (selectedKeys: string[], confirm: any, dataIndex: string) => {
   confirm()
-  searchedKeys.value[dataIndex] = selectedKeys[0].split(' ')
+  searchedKeys.value[dataIndex] = selectedKeys[0]?.split(' ')
 }
 
 const handleReset = (_clearFilters: any, column: any) => {
@@ -232,7 +232,7 @@ const columns = computed<TableColumnType<Teacher>[]>(() => {
       fixed: 'left',
       customFilterDropdown: true,
       onFilter: (value: string, record: Teacher) => record.name.toLowerCase().includes(value.toLowerCase()),
-      onFilterDropdownOpenChange: visible => focusSearchInputByFlag(visible),
+      onFilterDropdownOpenChange: focusSearchInputByFlag,
       filteredValue: !!searchedKeys.value.name && [ ...searchedKeys.value.name ]
     }, {
       title: '工号',
@@ -240,7 +240,7 @@ const columns = computed<TableColumnType<Teacher>[]>(() => {
       width: 150,
       customFilterDropdown: true,
       onFilter: (value: string, record: Teacher) => record.username.toLowerCase().includes(value.toLowerCase()),
-      onFilterDropdownOpenChange: visible => focusSearchInputByFlag(visible),
+      onFilterDropdownOpenChange: focusSearchInputByFlag,
       filteredValue: !!searchedKeys.value.username && [ ...searchedKeys.value.username ]
     }, {
       title: '教师ID',
@@ -275,13 +275,14 @@ const columns = computed<TableColumnType<Teacher>[]>(() => {
       title: '所在学院',
       dataIndex: 'college',
       customFilterDropdown: true,
+      width: 200,
       onFilter: (value: string, record: Teacher) => record.college.toLowerCase().includes(value.toLowerCase()),
-      onFilterDropdownOpenChange: visible => focusSearchInputByFlag(visible),
+      onFilterDropdownOpenChange: focusSearchInputByFlag,
       filteredValue: !!searchedKeys.value.college && [ ...searchedKeys.value.college ]
     }, {
       title: '操作',
       fixed: 'right',
-      width: 150
+      width: 160
     }
   ] as TableColumnType<Teacher>[]
 })
@@ -327,9 +328,7 @@ const rules: Record<string, Rule[]> = {
   college: [{ required: true, message: '请输入所在学院', whitespace: true, trigger: 'blur' }]
 }
 
-const reset = () => form.value = { name: '', username: '', email: '', gender: '', degree: '', phone: '', position: '', college: '' }
-
-const addTeacher = async () => {
+const addTeacher = () => {
   formRef.value.validate().then(async (form: any) => {
     btnLoading.value = true
     const res = await addNewTeacher(form)

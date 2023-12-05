@@ -1,13 +1,14 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import type { UserInfo } from '@/types/User'
+import { UserType } from '@/types/Enums'
 
 // 用户信息状态
 const useUserStore = defineStore('user', () => {
   const userInfo = ref<UserInfo>({
     userId: 0,
     name: '',
-    userType: 0, // 1 -> ADMIN, 2 -> STUDENT, 3 -> TEACHER
+    userType: UserType.STUDENT, // 1 -> ADMIN, 2 -> STUDENT, 3 -> TEACHER
     avatar: '',
     token: ''
   })

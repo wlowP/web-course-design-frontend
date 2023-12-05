@@ -3,11 +3,13 @@
 // 学生的基本类型
 import type { User } from '@/types/User'
 import { UserInitialState } from '@/types/User'
+import type { Grade } from '@/types/Enums'
+import { UserType } from '@/types/Enums'
 
-export interface Student extends User{
+export interface Student extends User {
   studentId: number
   major: 1 | 2 | 3
-  grade: 1 | 2 | 3 | 4 | 5
+  grade: Grade
   gpa: number
   studentClass: number
   rankClass: number
@@ -23,9 +25,9 @@ export interface StudentActivity {
   studentId: number
   name: string
   major: string
-  grade: string
+  grade: Grade
   username: string
-  userType: 'STUDENT' | string
+  userType: UserType.STUDENT
   honors: StudentActivityItem[]
   competitions: StudentActivityItem[]
   disciplinary: StudentActivityItem[]
@@ -48,10 +50,10 @@ export interface StudentActivityItem {
 export const studentActivityInitialState = (): StudentActivity => ({
   studentId: 0,
   name: '',
-  grade: '',
+  grade: Grade.OTHERS,
   major: '',
   username: '',
-  userType: 'STUDENT',
+  userType: UserType.STUDENT,
   clubs: [],
   competitions: [],
   disciplinary: [],
@@ -67,7 +69,7 @@ export const studentInitialState = (): Student => ({
   birthplace: '',
   ethnicity: '',
   gpa: 0,
-  grade: '',
+  grade: Grade.OTHERS,
   rankClass: 0,
   rankCollege: 0,
   studentClass: 0,
@@ -80,7 +82,7 @@ export const studentInitialState = (): Student => ({
   // photo: '',
   // username: ''
   ...UserInitialState(),
-  userType: 2
+  userType: UserType.STUDENT
 })
 
 // 学生活动类型的映射关系

@@ -26,7 +26,8 @@ const router: Router = createRouter({
         { path: ch('人员管理/学生信息'), component: () => import('@/views/staff/student-info.vue') },
         { path: ch('人员管理/教师管理'), component: () => import('@/views/staff/teacher-list.vue') },
         { path: ch('人员管理/教师信息'), component: () => import('@/views/staff/teacher-info.vue') },
-        { path: ch('教务管理/课程管理'), component: () => import('@/views/education/course.vue') },
+        { path: ch('教务管理/课程管理'), component: () => import('@/views/education/course-list.vue') },
+        { path: ch('教务管理/课程信息'), component: () => import('@/views/education/course-info.vue') },
         { path: ch('教务管理/成绩管理'), component: () => import('@/views/education/score.vue') }
       ]
     },

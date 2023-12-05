@@ -62,16 +62,16 @@
           </template>
           <template v-else-if="column.title === '性别'">
             {{
-              record.gender === 1 ? '男' :
-              record.gender === 2 ? '女' : '未知'
+              record.gender === Gender.MALE ? '男' :
+              record.gender === Gender.FEMALE ? '女' : '未知'
             }}
           </template>
           <template v-else-if="column.title === '年级'">
             {{
-              record.grade === 1 ? '大一' :
-              record.grade === 2 ? '大二' :
-              record.grade === 3 ? '大三' :
-              record.grade === 4 ? '大四' : '其他'
+              record.grade === Grade.F1 ? '大一' :
+              record.grade === Grade.F2 ? '大二' :
+              record.grade === Grade.F3 ? '大三' :
+              record.grade === Grade.F4 ? '大四' : '其他'
             }}
           </template>
           <template v-else-if="column.title === '专业'">
@@ -190,7 +190,7 @@
         </a-form>
       </a-card>
       <template #footer>
-        <a-button type="dashed" @click="reset">重置</a-button>
+        <a-button type="dashed" @click="formRef.resetFields()">重置</a-button>
         <a-button type="default" @click="showModal = false">取消</a-button>
         <a-button type="primary" @click="addStudent" :loading="btnLoading">确认添加</a-button>
       </template>
@@ -206,14 +206,15 @@ import { message, PaginationProps, TableColumnType, TableProps } from 'ant-desig
 import type { Student } from '@/types/Student'
 import { addNewStudent, deleteStudentById, getStudentList } from '@/api/student'
 import {
-  ReloadOutlined,
-  QuestionCircleOutlined,
   DownloadOutlined,
-  UserAddOutlined,
-  SearchOutlined
+  QuestionCircleOutlined,
+  ReloadOutlined,
+  SearchOutlined,
+  UserAddOutlined
 } from '@ant-design/icons-vue'
 import type { Rule } from 'ant-design-vue/es/form'
 import { ch } from '@/utils/commons'
+import { Gender, Grade } from '@/types/Enums'
 
 const router: Router = useRouter()
 const studentList = ref<Student[]>([])
@@ -272,7 +273,7 @@ const columns = computed<TableColumnType<Student>[]>(() => {
       fixed: 'left',
       customFilterDropdown: true,
       onFilter: (value: string, record: Student) => record.name.toLowerCase().includes(value.toLowerCase()),
-      onFilterDropdownOpenChange: visible => focusSearchInputByFlag(visible),
+      onFilterDropdownOpenChange: focusSearchInputByFlag,
       filteredValue: !!searchedKeys.value.name && [ ...searchedKeys.value.name ]
     }, {
       title: '学号',
@@ -280,7 +281,7 @@ const columns = computed<TableColumnType<Student>[]>(() => {
       width: 150,
       customFilterDropdown: true,
       onFilter: (value: string, record: Student) => record.username.toLowerCase().includes(value.toLowerCase()),
-      onFilterDropdownOpenChange: visible => focusSearchInputByFlag(visible),
+      onFilterDropdownOpenChange: focusSearchInputByFlag,
       filteredValue: !!searchedKeys.value.username && [ ...searchedKeys.value.username ]
     }, {
       title: '学生ID',
@@ -299,8 +300,8 @@ const columns = computed<TableColumnType<Student>[]>(() => {
       title: '年级',
       dataIndex: 'grade',
       width: 100,
-      filters: [{ text: '大一', value: 1 }, { text: '大二', value: 2 }, { text: '大三', value: 3 }, { text: '大四', value: 4 }],
-      onFilter: (value: number, student: Student) => student.grade === value,
+      filters: [{ text: '大一', value: Grade.F1 }, { text: '大二', value: Grade.F2 }, { text: '大三', value: Grade.F3 }, { text: '大四', value: Grade.F4 }, { text: '其他', value: Grade.OTHERS }],
+      onFilter: (value: Grade, student: Student) => student.grade === value,
       filteredValue: filters.grade || null // 定义了filteredValue后就会启用过滤器的受控模式
     }, {
       title: '班级',
@@ -355,7 +356,7 @@ const columns = computed<TableColumnType<Student>[]>(() => {
     }, {
       title: '操作',
       fixed: 'right',
-      width: 150
+      width: 160
     }
   ] as TableColumnType<Student>[] // 类型断言一下以免IDE报错
 })
@@ -375,7 +376,7 @@ const searchInputRef = ref()
 // 某一列的搜索
 const handleSearch = (selectedKeys: string[], confirm: any, dataIndex: string) => {
   confirm()
-  searchedKeys.value[dataIndex] = selectedKeys[0].split(' ')
+  searchedKeys.value[dataIndex] = selectedKeys[0]?.split(' ')
 }
 
 // 重置某一列搜索的关键字
@@ -390,7 +391,7 @@ const showModal = ref(false)
 const form = ref({
   name: '',
   username: '',
-  grade: '',
+  grade: Grade.OTHERS,
   studentClass: '',
   major: '',
   gender: '',
@@ -423,8 +424,6 @@ const rules: Record<string, Rule[]> = {
   birthday: [{ required: true, message: '请选择出生日期', whitespace: true, trigger: 'blur' }],
   address: [{ required: true, message: '请输入住址', whitespace: true, trigger: 'blur' }]
 }
-// 重置表单
-const reset = () => form.value = { name: '', username: '', grade: '', studentClass: '', major: '', gender: '', email: '', birthplace: '', ethnicity: '', phone: '', birthday: '', address: '' }
 
 // 表单的ref引用
 const formRef = ref()

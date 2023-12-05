@@ -98,6 +98,7 @@
                 <a-textarea v-if="editFurtherInfo" v-model:value="teacherInfoEdit.research"/>
                 <span v-else>{{ teacherInfo.research }}</span>
               </a-descriptions-item>
+              <!-- todo: (!可选)论文和个人简历使用markdown编辑器 @kangc/v-md-editor -->
               <a-descriptions-item label="论文">
                 <a-textarea v-if="editFurtherInfo" v-model:value="teacherInfoEdit.paper" :rows="6"/>
                 <span v-else>{{ teacherInfo.paper }}</span>

@@ -65,11 +65,12 @@ import {
   MailOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  PieChartOutlined,
+  PieChartOutlined
 } from '@ant-design/icons-vue'
 import useUserStore from '@/stores/user'
 import { ch, formatTime } from '@/utils/commons'
 import { useRoute, useRouter } from 'vue-router'
+import { UserType } from '@/types/Enums'
 
 const store = useUserStore()
 const router = useRouter()
@@ -123,7 +124,7 @@ const menuItems = reactive<any>([
   // 不检测menuItems[0].children是否存在的话TypeScript会报错
   if (userinfo) {
     switch (store.userInfo.userType) {
-      case 1: {
+      case UserType.ADMIN: {
         // 个人信息: + 项目文档, + 项目视频
         userinfo.push({
           key: ch('/主页/个人信息/项目文档'),
@@ -174,7 +175,7 @@ const menuItems = reactive<any>([
         })
         break
       }
-      case 2: {
+      case UserType.STUDENT: {
         userinfo.push({
           key: ch('/主页/个人信息/项目文档'),
           label: '项目文档'
@@ -187,7 +188,7 @@ const menuItems = reactive<any>([
         })
         break
       }
-      case 3: {
+      case UserType.TEACHER: {
         userinfo.push({
           key: ch('/主页/个人信息/个人简介'),
           label: '个人简介'
@@ -266,8 +267,7 @@ const menuItems = reactive<any>([
     padding: 5px 50px;
     height: 25px;
     text-align: center;
-    color: white;
-    background-color: #7dbcea;
+    background-color: rgba(182, 182, 182, 0.98);
   }
 }
 </style>

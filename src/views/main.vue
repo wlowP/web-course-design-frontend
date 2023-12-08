@@ -170,7 +170,10 @@ const menuItems = reactive<any>([
             }, {
               key: ch('/主页/教务管理/成绩管理'),
               label: '成绩管理'
-            }
+            }, {
+                key: ch('/主页/教务管理/课程表'),
+                label: '课程表'
+              }
           ]
         })
         break
@@ -185,6 +188,10 @@ const menuItems = reactive<any>([
         }, {
           key: ch('/主页/个人信息/个人简介'),
           label: '个人简介'
+        },
+        {
+          key: ch('/主页/课程表'),
+          label: '课程表'
         })
         break
       }
@@ -192,6 +199,10 @@ const menuItems = reactive<any>([
         userinfo.push({
           key: ch('/主页/个人信息/个人简介'),
           label: '个人简介'
+        },
+        {
+           key: ch('/主页/课程表'),
+           label: '课程表'
         })
         break
       }

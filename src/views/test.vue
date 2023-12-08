@@ -1,9 +1,11 @@
 <template>
-  <div>
-    <h1>test</h1>
+  <div class="test">
+    这是测试页面
   </div>
 </template>
-<script lang="ts" setup>
+
+<script setup lang="ts">
 
 </script>
 
+<style scoped></style>

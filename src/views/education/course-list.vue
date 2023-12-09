@@ -41,9 +41,7 @@
               <template #icon><SearchOutlined /></template>
               搜索
             </a-button>
-            <a-button size="small" style="width: 90px" @click="handleReset(clearFilters, column)">
-              重置
-            </a-button>
+            <a-button size="small" style="width: 90px" @click="handleReset(clearFilters, column)">重置</a-button>
           </div>
         </template>
         <template #customFilterIcon="{ filtered }">
@@ -58,8 +56,17 @@
           </template>
           <template v-if="column.title === '操作'">
             <a-space>
-              <a-button type="default" @click="router.push({ path: ch('/主页/教务管理/课程信息'), state: { courseId: record.courseId } })">编辑</a-button>
-              <a-button type="primary" danger @click="disableCourse(record.courseId)">禁用</a-button>
+              <a-button type="default" @click="onOpenDrawer(record)">编辑</a-button>
+              <a-popconfirm title="是否确定要停开?"
+                            ok-text="确定"
+                            cancel-text="取消"
+                            ok-type="danger"
+                            :ok-button-props="{ danger: true, type: 'primary' }"
+                            @confirm="disableCourse(record.courseId)"
+              >
+                <template #icon><question-circle-outlined style="color: red"/></template>
+                <a-button type="primary" danger>停开</a-button>
+              </a-popconfirm>
             </a-space>
           </template>
         </template>
@@ -141,6 +148,9 @@
         <a-button type="primary" @click="addCourse" :loading="btnLoading">确认添加</a-button>
       </template>
     </a-modal>
+
+    <!-- 课程具体信息的抽屉面板 -->
+    <drawer-course-info v-model:show="openDrawer" :course="currentCourse" ref="drawerRef" @refresh="() => init()"/>
   </div>
 </template>
 
@@ -149,12 +159,18 @@ import svgCourse from '@/assets/svg/课程.svg'
 import { useRouter } from 'vue-router'
 import { addNewCourse, disCourse, getCourseList } from '@/api/course'
 import { computed, ref, h } from 'vue'
-import type { Course } from '@/types/Course'
+import { type Course } from '@/types/Course'
 import { message, PaginationProps, TableColumnType, TableProps } from 'ant-design-vue'
-import { DownloadOutlined, ReloadOutlined, SearchOutlined, UserAddOutlined } from '@ant-design/icons-vue'
+import {
+  DownloadOutlined,
+  QuestionCircleOutlined,
+  ReloadOutlined,
+  SearchOutlined,
+  UserAddOutlined
+} from '@ant-design/icons-vue'
 import { CourseStatus, CourseType, Grade } from '@/types/Enums'
-import { ch } from '@/utils/commons'
 import type { Rule } from 'ant-design-vue/es/form'
+import DrawerCourseInfo from '@/components/drawer-course-info.vue'
 
 const router = useRouter()
 
@@ -338,6 +354,17 @@ const disableCourse = async (courseId: number) => {
     message.error(res.msg)
   }
 }
+
+const onOpenDrawer = (course: Course) => {
+  openDrawer.value = true
+  currentCourse.value = course
+  drawerRef.value.course = course
+  console.log('currentCourse = ', currentCourse.value, 'DrawerRef = ', drawerRef.value)
+}
+
+const drawerRef = ref()
+const openDrawer = ref<boolean>(false)
+const currentCourse = ref<Course>({} as Course)
 </script>
 
 <style scoped>

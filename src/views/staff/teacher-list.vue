@@ -66,7 +66,7 @@
           </template>
           <template v-else-if="column.title === '操作'">
             <a-space>
-              <a-button type="default" @click="router.push({ path: ch('/主页/人员管理/教师信息'), state: { teacherId: record.teacherId } })">编辑</a-button>
+              <a-button type="default" @click="router.push({ path: ch('/主页/人员管理/教师信息'), state: { teacherId: record.teacherId } })">查看</a-button>
               <a-popconfirm title="是否确定要删除?"
                             ok-text="删除"
                             ok-type="danger"

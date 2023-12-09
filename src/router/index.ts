@@ -29,7 +29,8 @@ const router: Router = createRouter({
         { path: ch('教务管理/课程管理'), component: () => import('@/views/education/course-list.vue') },
         { path: ch('教务管理/课程信息'), component: () => import('@/views/education/course-info.vue') },
         { path: ch('教务管理/成绩管理'), component: () => import('@/views/education/score.vue') },
-        { path: ch('教务管理/课程表'), component: () => import('@/views/education/course-arrange.vue') }
+         { path: ch('教务管理/课程审核'), component: () => import('@/views/education/course-arrange.vue') }
+
       ]
     },
     // todo: 404页面

@@ -3,8 +3,7 @@
 // 学生的基本类型
 import type { User } from '@/types/User'
 import { UserInitialState } from '@/types/User'
-import type { Grade } from '@/types/Enums'
-import { UserType } from '@/types/Enums'
+import { Grade, UserType } from '@/types/Enums'
 
 export interface Student extends User {
   studentId: number
@@ -75,12 +74,6 @@ export const studentInitialState = (): Student => ({
   studentClass: 0,
   studentId: 0,
   major: '',
-  // gender: 0,
-  // email: '',
-  // name: '',
-  // phone: '',
-  // photo: '',
-  // username: ''
   ...UserInitialState(),
   userType: UserType.STUDENT
 })

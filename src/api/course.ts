@@ -15,3 +15,8 @@ export const addNewCourse = (form): Promise<DataResponse> => {
 export const disCourse = (id): Promise<DataResponse> => {
   return request.post('/course/deleteCourse', { data: { courseId: id } })
 }
+
+// 更新课程信息
+export const updateCourse = (courseId, form): Promise<DataResponse> => {
+  return request.post('/course/updateCourse', { data: { courseId, course: form } })
+}

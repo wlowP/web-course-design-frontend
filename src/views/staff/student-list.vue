@@ -84,7 +84,7 @@
           <template v-else-if="column.title === '操作'">
             <a-space>
               <!-- 这里跳转时通过history.state传递对象参数. 这样就可以不用将参数暴露在地址栏url中了 -->
-              <a-button type="default" @click="router.push({ path: ch('/主页/人员管理/学生信息'), state: { studentId: record.studentId } })">编辑</a-button>
+              <a-button type="default" @click="router.push({ path: ch('/主页/人员管理/学生信息'), state: { studentId: record.studentId } })">查看</a-button>
               <a-popconfirm title="是否确定要删除?"
                             ok-text="删除"
                             ok-type="danger"

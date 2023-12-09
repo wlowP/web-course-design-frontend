@@ -312,6 +312,7 @@ const rules: Rules = {
 const validator = new Schema(rules)
 
 // 基本信息保存编辑
+// todo: 这里更新信息后外面的学生信息列表不会更新, 需要手动刷新
 const editSaveBasicInfo = () => {
   validator.validate(studentEdit.value, async (errors, fields) => {
     if (errors) {

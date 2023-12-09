@@ -22,11 +22,11 @@ export enum UserType {
  * 0 -> 其他; 1 -> 大一; 2 -> 大二; 3 -> 大三; 4 -> 大四
  */
 export enum Grade {
-OTHERS,
-F1,
-F2,
-F3,
-F4
+  OTHERS,
+  F1,
+  F2,
+  F3,
+  F4
 }
 
 /**

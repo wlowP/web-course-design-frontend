@@ -1,5 +1,4 @@
-import type { Grade } from '@/types/Enums'
-import { CourseStatus, CourseType } from '@/types/Enums'
+import { CourseStatus, CourseType, Grade } from '@/types/Enums'
 
 export interface Course {
   courseId: number
@@ -10,3 +9,14 @@ export interface Course {
   courseType: CourseType
   courseStatus: CourseStatus
 }
+
+// 课程的初始状态
+export const courseInitialState = (): Course => ({
+  courseId: 0,
+  num: '',
+  name: '',
+  credit: 0,
+  grade: Grade.OTHERS,
+  courseType: CourseType.REQUIRED,
+  courseStatus: CourseStatus.INVALID
+})

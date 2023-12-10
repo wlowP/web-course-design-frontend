@@ -21,7 +21,7 @@
         </a-page-header>
         <a-table :columns="columns" :data-source="data" :scroll="{ x: 'calc(700px + 50%)', y: 'calc(700px + 50%)' }"
             :pagination="false" :rowClassName="() => { return 'rowClass' }" bordered>
-            <template #title>获取学生姓名和学年</template>
+            <template #title>获取(某教师教授的某班课程表)</template>
 
         </a-table>
     </div>

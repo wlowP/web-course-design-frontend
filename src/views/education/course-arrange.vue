@@ -1,5 +1,5 @@
 <template>
-    <div class="course-list">
+    <div class="course-arrange">
         <a-page-header class="header" @back="router.back()" :avatar="{ src: svgCourse, shape: 'square' }">
             <template #title><span class="title">课程管理</span></template>
             <span class="tip">展示课程信息</span>
@@ -56,8 +56,9 @@
                             :filter-option="filterOption" @change="handleChange"></a-select>
                     </template>
                     <template v-if="column.title === '添加课程上课周数'">
-                        <a-select v-model:value="sumWeeks" :options="allWeeks" mode="multiple" size="large"
-                            placeholder="选择上课周数" @popupScroll="popupScroll" @input="changeMney"></a-select>
+                        <a-space>
+                        <a-button type="primary" danger @click="saveOneCourseArrange(record.courseArrangeId)">保存本条课程安排</a-button>
+                        </a-space>
                     </template>
 
 
@@ -80,9 +81,8 @@
                             </a-table-summary-cell>
                             <a-table-summary-cell :index="6" :col-span="2">
                                 <a-space>
-                                    <a-button type="primary" :icon="h(UserAddOutlined)"
-                                        @click="showModal = true">添加课程</a-button>
-                                    <a-button type="primary" :icon="h(DownloadOutlined)">导出课程表格</a-button>
+                                    <a-button type="primary"  @click="saveAllCourseArrange">保存所有课程安排</a-button>
+                                    <a-button type="primary" :icon="h(DownloadOutlined)">导出课程安排表格</a-button>
                                 </a-space>
                             </a-table-summary-cell>
                         </a-table-summary-row>
@@ -380,6 +380,51 @@ const popupScroll = () => {
 const sumWeeks = ref(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']);
 const allWeeks = [...Array(20)].map((_, i) => ({ value: (i + 1) }));
 
+
+const saveOneCourseArrange = async (courseArrangeId:number) => {
+  try {
+    const res = await saveCourseArrange(courseArrangeId); // 调用保存函数保存数据
+
+    if (res.code === 0) {
+      message.success('保存成功');
+    } else {
+      message.error(res.msg);
+    }
+  } catch (error) {
+    console.error(error);
+    message.error('保存失败');
+  }
+};
+
+const saveAllCourseArrange = async () => {
+    try {
+    const modifiedData = dataSource.filter(record => record.isModified);
+
+    for (const record of modifiedData) {
+      const res = await saveCourseArrange(courseArrangeId);
+
+      if (res.code === 0) {
+        record.isModified = false;
+      } else {
+        message.error(res.msg);
+      }
+    }
+
+    message.success('保存成功');
+  } catch (error) {
+    console.error(error);
+    message.error('保存失败');
+  }
+};
+
+// 模拟保存数据的异步函数
+const saveCourseArrange = async (courseArrangeId) => {
+  // 保存单个课程安排的异步函数
+  return {
+    code: 0,
+    msg: '保存成功',
+  };
+};
 
 
 </script>

@@ -49,3 +49,13 @@ export enum CourseStatus {
   VALID_NOT_SELECTABLE = 2,
   SELECTABLE = 3
 }
+
+/**
+ * 成绩状态
+ * 1 -> 未进行批改; 2 -> 已批改但是学生不可见; 3 -> 已批改且学生可见
+ */
+export enum ScoreStatus {
+  NOT_TESTED = 1,
+  TESTED_NOT_VISIBLE = 2,
+  TESTED_VISIBLE = 3
+}

@@ -17,13 +17,6 @@
                @change="updateFiltersAndSorter"
                :pagination="{ position: ['bottomRight'], defaultPageSize: 15, showQuickJumper: true, pageSizeOptions: ['10', '15', '30', '50', '100'], showTotal: (total: any, range: any) => `共 ${total} 条 当前: ${range[0]} - ${range[1]}` } as PaginationProps"
       >
-
-        <template #headerCell="{ column }">
-          <span>
-            {{ column.title }}
-          </span>
-        </template>
-
         <template #customFilterDropdown="{ setSelectedKeys, selectedKeys, confirm, clearFilters, column }">
           <div style="padding: 8px">
             <a-input
@@ -98,7 +91,7 @@
               <a-table-summary-cell :index="8" :col-span="2">
                 <a-space>
                   <a-button type="primary" :icon="h(UserAddOutlined)" @click="showModal = true">添加教师</a-button>
-                  <a-button type="primary" :icon="h(DownloadOutlined)">导出教师表格</a-button>
+                  <a-button type="primary" :icon="h(DownloadOutlined)" @click="downloadTeacherExcel">导出教师表格</a-button>
                 </a-space>
               </a-table-summary-cell>
             </a-table-summary-row>
@@ -172,6 +165,7 @@ import {
 } from '@ant-design/icons-vue'
 import { ch } from '@/utils/commons'
 import type { Rule } from 'ant-design-vue/es/form'
+import { downloadExcel } from '@/api/general'
 
 const router = useRouter()
 
@@ -182,11 +176,11 @@ const init = async () => {
   if (res.code === 0) {
     teacherList.value = res.data
     tableLoading.value = false
-    return res.data
+    return teacherList.value
   } else {
     message.error(res.msg)
     tableLoading.value = false
-    return null
+    return []
   }
 }
 init()
@@ -335,6 +329,7 @@ const addTeacher = () => {
     if (res.code === 0) {
       message.success('添加成功')
       showModal.value = false
+      formRef.value.resetFields()
       await init()
     } else {
       message.error(res.msg)
@@ -351,6 +346,10 @@ const deleteTeacher = async (teacherId: number) => {
   } else {
     message.error(res.msg)
   }
+}
+
+const downloadTeacherExcel = () => {
+  downloadExcel('teacher', teacherList.value.map(t => t.teacherId))
 }
 </script>
 

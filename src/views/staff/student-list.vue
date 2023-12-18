@@ -17,12 +17,6 @@
                @change="updateFiltersAndSorter"
                :pagination="{ position: ['bottomRight'], defaultPageSize: 15, showQuickJumper: true, pageSizeOptions: ['10', '15', '30', '50', '100'], showTotal: (total: any, range: any) => `共 ${total} 条 当前: ${range[0]} - ${range[1]}` } as PaginationProps"
       >
-        <!-- todo: 启用了sticky属性让表头附着视口顶部后, 划到表格底部时偶尔会出现底部有两个横向滚动条的情况, 看看能不能修复 -->
-        <template #headerCell="{ column }">
-          <span>
-            {{ column.title }}
-          </span>
-        </template>
 
         <!-- 列头右侧的下拉搜索框 -->
         <template #customFilterDropdown="{ setSelectedKeys, selectedKeys, confirm, clearFilters, column }">
@@ -117,7 +111,7 @@
               <a-table-summary-cell :index="15" :col-span="2">
                 <a-space>
                   <a-button type="primary" :icon="h(UserAddOutlined)" @click="showModal = true">添加学生</a-button>
-                  <a-button type="primary" :icon="h(DownloadOutlined)">导出学生表格</a-button>
+                  <a-button type="primary" :icon="h(DownloadOutlined)" @click="downloadStudentExcel">导出学生表格</a-button>
                 </a-space>
               </a-table-summary-cell>
             </a-table-summary-row>
@@ -215,6 +209,7 @@ import {
 import type { Rule } from 'ant-design-vue/es/form'
 import { ch } from '@/utils/commons'
 import { Gender, Grade } from '@/types/Enums'
+import { downloadExcel } from '@/api/general'
 
 const router: Router = useRouter()
 const studentList = ref<Student[]>([])
@@ -231,7 +226,7 @@ const init = async () => {
   } else {
     message.error(res.msg)
     tableLoading.value = false
-    return null
+    return []
   }
 }
 // 一进页面就获取学生列表
@@ -391,7 +386,7 @@ const showModal = ref(false)
 const form = ref({
   name: '',
   username: '',
-  grade: Grade.OTHERS,
+  grade: '',
   studentClass: '',
   major: '',
   gender: '',
@@ -437,6 +432,7 @@ const addStudent = () => {
     if (res.code === 0) {
       message.success('添加成功')
       showModal.value = false
+      formRef.value.resetFields()
       await init()
     } else {
       message.error(res.msg)
@@ -454,6 +450,11 @@ const deleteStudent = async (studentId: number) => {
   } else {
     message.error(res.msg)
   }
+}
+
+// 下载学生表格
+const downloadStudentExcel = () => {
+  downloadExcel('student', studentList.value.map(s => s.studentId))
 }
 </script>
 

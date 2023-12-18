@@ -75,7 +75,7 @@ const rules: Record<string, Rule[]> = {
   num: [{ required: true, message: '请输入课程序号' }],
   name: [{ required: true, message: '请输入课程名称' }],
   credit: [
-    { required: true, message: '请输入学分' },
+    { required: true, type: 'number', message: '请输入学分' },
     { pattern: /^\d{1,2}(\.\d)?$/, message: '学分必须是1-2位数字' }
   ],
   grade: [{ required: true, type: 'number', message: '请选择开设年级' }],

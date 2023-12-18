@@ -16,11 +16,6 @@
                @change="updateFiltersAndSorter"
                :pagination="{ position: ['bottomRight'], defaultPageSize: 15, showQuickJumper: true, pageSizeOptions: ['10', '15', '30', '50', '100'], showTotal: (total: any, range: any) => `共 ${total} 条 当前: ${range[0]} - ${range[1]}` } as PaginationProps"
       >
-        <template #headerCell="{ column }">
-          <span>
-            {{ column.title }}
-          </span>
-        </template>
 
         <template #customFilterDropdown="{ setSelectedKeys, selectedKeys, confirm, clearFilters, column }">
           <div style="padding: 8px">
@@ -87,7 +82,7 @@
               <a-table-summary-cell :index="6" :col-span="2">
                 <a-space>
                   <a-button type="primary" :icon="h(UserAddOutlined)" @click="showModal = true">添加课程</a-button>
-                  <a-button type="primary" :icon="h(DownloadOutlined)">导出课程表格</a-button>
+                  <a-button type="primary" :icon="h(DownloadOutlined)" @click="downloadCourseList">导出课程表格</a-button>
                 </a-space>
               </a-table-summary-cell>
             </a-table-summary-row>
@@ -150,7 +145,7 @@
     </a-modal>
 
     <!-- 课程具体信息的抽屉面板 -->
-    <drawer-course-info v-model:show="openDrawer" :course="currentCourse" ref="drawerRef" @refresh="() => init()"/>
+    <drawer-course-info v-model:show="openDrawer" :course="currentCourse" @refresh="() => init()"/>
   </div>
 </template>
 
@@ -171,6 +166,7 @@ import {
 import { CourseStatus, CourseType, Grade } from '@/types/Enums'
 import type { Rule } from 'ant-design-vue/es/form'
 import DrawerCourseInfo from '@/components/drawer-course-info.vue'
+import { downloadExcel } from '@/api/general'
 
 const router = useRouter()
 
@@ -183,7 +179,7 @@ const init = async () => {
   } else {
     message.error(res.msg)
     tableLoading.value = false
-    return null
+    return []
   }
 }
 const refresh = async () => {
@@ -227,7 +223,6 @@ const focusSearchInputByFlag = (flag: boolean) => {
     }, 100)
   }
 }
-
 
 const columns = computed<TableColumnType<Course>[]>(() => {
   const filters = enabledFilters.value || {}
@@ -338,6 +333,7 @@ const addCourse = () => {
     if (res.code === 0) {
       message.success('添加成功')
       showModal.value = false
+      formRef.value.resetFields()
       await init()
     } else {
       message.error(res.msg)
@@ -358,13 +354,14 @@ const disableCourse = async (courseId: number) => {
 const onOpenDrawer = (course: Course) => {
   openDrawer.value = true
   currentCourse.value = course
-  drawerRef.value.course = course
-  console.log('currentCourse = ', currentCourse.value, 'DrawerRef = ', drawerRef.value)
 }
 
-const drawerRef = ref()
 const openDrawer = ref<boolean>(false)
 const currentCourse = ref<Course>({} as Course)
+
+const downloadCourseList = () => {
+  downloadExcel('course', courseList.value.map(c => c.courseId))
+}
 </script>
 
 <style scoped>

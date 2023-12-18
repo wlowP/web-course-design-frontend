@@ -170,10 +170,10 @@ const menuItems = reactive<any>([
             }, {
               key: ch('/主页/教务管理/成绩管理'),
               label: '成绩管理'
-            }, {
-                key: ch('/主页/教务管理/课程表'),
-                label: '课程表'
-              }
+            }, { // todo: 实则为教师端的课程表, 到时候去掉
+              key: ch('/主页/课程表'),
+              label: '课程表'
+            }
           ]
         })
         break

@@ -7,7 +7,7 @@ import { Grade, UserType } from '@/types/Enums'
 
 export interface Student extends User {
   studentId: number
-  major: 1 | 2 | 3
+  major: 1 | 2 | 3 // 1 -> 软件工程, 2 -> 数字媒体技术, 3 -> 数据科学与大数据技术
   grade: Grade
   gpa: number
   studentClass: number

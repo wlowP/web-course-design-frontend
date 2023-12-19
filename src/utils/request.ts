@@ -32,12 +32,11 @@ request.interceptors.response.use(response => {
 }, error => {
   // 处理响应错误
   console.warn('请求出错! 请求url: ', error.config.url, '; 详细信息: ', error)
-  // 关闭加载动画
 
   // 请求错误的话会返回一个AxiosError对象, 根据其中的response.status状态码判断即可
   // 省得一堆报错和try catch了
 
-  // 后端没考虑到的错误会走这个方法, 比如415, 📌📌本来返回的是一个AxiosError对象
+  // 后端没考虑到的错误就会走这个方法, 比如415, 📌📌本来返回的是一个AxiosError对象
   // 在这里将其转换为DataResponse对象, 以便在页面上显示错误信息
   // 人家甚至准备好isAxiosError属性来判断是否是AxiosError对象了, 真体贴(
   if (error.isAxiosError) {
@@ -54,7 +53,7 @@ request.interceptors.response.use(response => {
 
 export default request
 
-export interface DataResponse<T> {
+export interface DataResponse<T = any> {
   code: number,
   msg: string | null,
   data: T

@@ -18,3 +18,27 @@ export interface Score extends Course {
   rankCollegeCourse: number // 单科学院排名
   scoreStatus: ScoreStatus
 }
+
+export const ScoreInitialState = (): Score => ({
+  courseId: 0,
+  courseName: '',
+  courseStatus: undefined,
+  courseType: undefined,
+  credit: 0,
+  gpa: 0,
+  grade: undefined,
+  major: undefined,
+  name: '',
+  num: '',
+  photo: '',
+  rankClassCourse: 0,
+  rankClassGPA: 0,
+  rankCollegeCourse: 0,
+  rankCollegeGPA: 0,
+  score: 0,
+  scoreStatus: undefined,
+  studentClass: 0,
+  studentId: 0,
+  userType: undefined,
+  username: ''
+})

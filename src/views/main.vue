@@ -57,9 +57,8 @@
 </template>
 
 <script setup lang="ts">
-import { h, onMounted, reactive, ref, watch } from 'vue'
+import { h, onActivated, onMounted, reactive, ref, watch } from 'vue'
 import {
-  AppstoreOutlined,
   DesktopOutlined,
   FileTextOutlined,
   MailOutlined,
@@ -68,7 +67,7 @@ import {
   PieChartOutlined
 } from '@ant-design/icons-vue'
 import useUserStore from '@/stores/user'
-import { ch, formatTime } from '@/utils/commons'
+import { ch, deepClone, formatTime } from '@/utils/commons'
 import { useRoute, useRouter } from 'vue-router'
 import { UserType } from '@/types/Enums'
 
@@ -97,56 +96,44 @@ const menuState = ref<any>({
   openKeys: [decodeURI(route.path.substring(1).split('/')[1])]
 })
 
+const initialItem = {
+  key: '个人信息',
+  icon: () => h(MailOutlined),
+  label: '个人信息',
+  children: [
+    {
+      key: ch('/主页/个人信息/系统简介'),
+      label: '系统简介',
+      title: '本项目的简介',
+      icon: () => h(FileTextOutlined)
+    }, {
+      key: ch('/主页/个人信息/修改密码'),
+      label: '修改密码'
+    }
+  ]
+}
+
 // 菜单选项
 // 每当TypeScript报类型错误时, 难搞的话就any得了
 const menuItems = reactive<any>([
-  {
-    key: '个人信息',
-    icon: () => h(MailOutlined),
-    label: '个人信息',
-    children: [
-      {
-        key: ch('/主页/个人信息/系统简介'),
-        label: '系统简介',
-        title: '本项目的简介',
-        icon: () => h(FileTextOutlined)
-      }, {
-        key: ch('/主页/个人信息/修改密码'),
-        label: '修改密码'
-      }
-    ]
-  }
+  deepClone(initialItem)
 ])
 
 // 根据用户类型动态添加菜单项
-;(() => {
+onActivated(() => {
+  menuItems.splice(0)
+  menuItems.push(deepClone(initialItem))
   const userinfo = menuItems[0].children
   // 不检测menuItems[0].children是否存在的话TypeScript会报错
   if (userinfo) {
     switch (store.userInfo.userType) {
       case UserType.ADMIN: {
-        // 个人信息: + 项目文档, + 项目视频
+        // 个人信息: + 项目文档
         userinfo.push({
           key: ch('/主页/个人信息/项目文档'),
           label: '项目文档'
-        }, {
-          key: ch('/主页/个人信息/项目视频'),
-          label: '项目视频'
         })
         menuItems.push({
-          key: '系统管理',
-          icon: () => h(AppstoreOutlined),
-          label: '系统管理',
-          children: [
-            {
-              key: ch('/主页/系统管理/菜单管理'),
-              label: '菜单管理'
-            }, {
-              key: ch('/主页/系统管理/字典管理'),
-              label: '字典管理'
-            }
-          ]
-        }, {
           key: '人员管理',
           icon: () => h(PieChartOutlined),
           label: '人员管理',
@@ -170,9 +157,6 @@ const menuItems = reactive<any>([
             }, {
               key: ch('/主页/教务管理/成绩管理'),
               label: '成绩管理'
-            }, { // todo: 实则为教师端的课程表, 到时候去掉
-              key: ch('/主页/课程表'),
-              label: '课程表'
             }
           ]
         })
@@ -183,15 +167,8 @@ const menuItems = reactive<any>([
           key: ch('/主页/个人信息/项目文档'),
           label: '项目文档'
         }, {
-          key: ch('/主页/个人信息/项目视频'),
-          label: '项目视频'
-        }, {
           key: ch('/主页/个人信息/个人简介'),
           label: '个人简介'
-        },
-        {
-          key: ch('/主页/课程表'),
-          label: '课程表'
         })
         break
       }
@@ -199,10 +176,20 @@ const menuItems = reactive<any>([
         userinfo.push({
           key: ch('/主页/个人信息/个人简介'),
           label: '个人简介'
-        },
-        {
-           key: ch('/主页/课程表'),
-           label: '课程表'
+        })
+        menuItems.push({
+          key: '教务管理',
+          icon: () => h(DesktopOutlined),
+          label: '教务管理',
+          children: [
+            {
+              key: ch('/主页/教务管理/课程管理'),
+              label: '课程管理'
+            }, {
+              key: ch('/主页/教务管理/成绩管理'),
+              label: '成绩管理'
+            }
+          ]
         })
         break
       }
@@ -213,7 +200,7 @@ const menuItems = reactive<any>([
     key: ch('/主页/测试页面'),
     label: '📌📌测试页面'
   })
-})()
+})
 </script>
 
 <style scoped lang="scss">
@@ -229,10 +216,12 @@ const menuItems = reactive<any>([
       height: 60px;
       display: flex;
       align-items: center;
+
       .avatar {
         margin-right: 20px;
       }
     }
+
     .ant-col {
       height: 60px;
     }
@@ -246,13 +235,16 @@ const menuItems = reactive<any>([
     .page-enter-active {
       transition: all 0.2s;
     }
+
     .page-leave-active {
       transition: all 0.1s;
     }
-    .page-enter-from{
+
+    .page-enter-from {
       transform: translateY(-20px);
       opacity: 0;
     }
+
     .page-leave-to {
       transform: translateX(20px);
       opacity: 0;

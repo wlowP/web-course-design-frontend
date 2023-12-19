@@ -56,8 +56,12 @@ import svgRenewPwd from '@/assets/svg/修改密码.svg'
 import { useRouter } from 'vue-router'
 import { ref } from 'vue'
 import type { Rule } from 'ant-design-vue/es/form'
+import request, { type DataResponse } from '@/utils/request'
+import useUserStore from '@/stores/user'
+import { message } from 'ant-design-vue'
 
 const router = useRouter()
+const store = useUserStore()
 
 const formState = ref({
   oldPassword: '',
@@ -79,9 +83,20 @@ const rules: Record<string, Rule[]> = {
   ]
 }
 
-const onFinish = () => {
-  console.log('通过参数校验:', formState.value)
-  // 发起请求修改密码...
+const onFinish = async () => {
+  const res: DataResponse = await request.post('/auth/changePassword', {
+    data: {
+      userId: store.userInfo.userId,
+      passwordOld: formState.value.oldPassword,
+      passwordNew1: formState.value.newPassword,
+      passwordNew2: formState.value.confirmPassword
+    }
+  })
+  if (res.code === 0) {
+    message.success('修改密码成功! 下次登录请使用新密码')
+  } else {
+    message.error(res.msg)
+  }
 }
 
 </script>

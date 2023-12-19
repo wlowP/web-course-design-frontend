@@ -62,8 +62,70 @@
             <a-button size="small" style="width: 90px" @click="handleReset(clearFilters, column)">重置</a-button>
           </div>
         </template>
+        <template #customFilterIcon="{ filtered }">
+          <search-outlined :style="{ color: filtered ? '#108ee9' : undefined }" />
+        </template>
+
+        <template #bodyCell="{ column, record }">
+          <template v-if="column.title === '课程序号'">
+            <a-typography-paragraph copyable class="clearMargin">
+              {{ record.num }}
+            </a-typography-paragraph>
+          </template>
+          <template v-else-if="column.title === '操作'">
+            <a-space>
+              <a-button type="default" @click="showModal = true; formModel = deepClone(record)">编辑</a-button>
+            </a-space>
+          </template>
+        </template>
+
+        <template #summary>
+          <a-table-summary fixed="bottom">
+            <a-table-summary-row>
+              <a-table-summary-cell :index="0" :col-span="4">
+                <a-space>
+                  <div style="width: 5em;">总数 {{ scoreList.length }}</div>
+                  <a-button type="dashed" @click="enabledSorter = {}">重置排序</a-button>
+                  <a-button type="dashed" @click="enabledFilters = {}">重置过滤器</a-button>
+                  <a-button type="dashed" @click="searchedKeys = {}">重置搜索</a-button>
+                  <a-button type="default" @click="enabledSorter = {}; enabledFilters = {}; searchedKeys = {}">重置所有筛选</a-button>
+                </a-space>
+              </a-table-summary-cell>
+            </a-table-summary-row>
+          </a-table-summary>
+        </template>
       </a-table>
     </a-card>
+
+    <a-modal v-model:open="showModal"
+             title="成绩详情"
+             :mask-closable="false"
+             style="top: 20vh"
+    >
+      <a-card bordered style="max-height: 50vh; overflow-y: scroll">
+        <a-form :label-col="{ style: { width: '100px' } }"
+                ref="formRef"
+                :model="formModel"
+                :rules="rules"
+        >
+          <a-form-item label="成绩" name="score">
+            <a-input-number v-model:value="formModel.score" />
+          </a-form-item>
+          <a-form-item label="成绩状态" name="scoreStatus">
+            <a-select v-model:value="formModel.scoreStatus">
+              <a-select-option :value="1">未进行批改</a-select-option>
+              <a-select-option :value="2">已批改但是学生不可见</a-select-option>
+              <a-select-option :value="3">已批改且学生可见</a-select-option>
+            </a-select>
+          </a-form-item>
+        </a-form>
+      </a-card>
+      <template #footer>
+        <a-button type="dashed" @click="formRef.resetFields()">重置</a-button>
+        <a-button type="default" @click="showModal = false">取消</a-button>
+        <a-button type="primary" @click="editSave" :loading="btnLoading">保存修改</a-button>
+      </template>
+    </a-modal>
   </div>
 </template>
 
@@ -72,11 +134,13 @@ import svgScoreList from '@/assets/svg/成绩管理.svg'
 import { computed, h, ref } from 'vue'
 import { SearchOutlined } from '@ant-design/icons-vue'
 import { message, PaginationProps, type TableColumnType, TableProps } from 'ant-design-vue'
-import type { Score } from '@/types/Score'
-import { getScoreList } from '@/api/score'
+import { type Score, ScoreInitialState } from '@/types/Score'
+import { getScoreList, updateScore } from '@/api/score'
 import { CourseType, Grade, ScoreStatus } from '@/types/Enums'
 import type { Course } from '@/types/Course'
 import type { Student } from '@/types/Student'
+import type { Rule } from 'ant-design-vue/es/form'
+import { deepClone } from '@/utils/commons'
 
 const scoreList = ref<Score[]>([])
 
@@ -128,7 +192,7 @@ const focusSearchInputByFlag = (flag: boolean) => {
   }
 }
 
-const columns = computed<TableColumnType<Score>>(() => {
+const columns = computed<TableColumnType<Score>[]>(() => {
   const filters = enabledFilters.value || {}
   const sorter = enabledSorter.value || {}
   return [
@@ -169,11 +233,18 @@ const columns = computed<TableColumnType<Score>>(() => {
           case Grade.F4: return '大四'
           default: return '未知'
         }
-      }
+      },
+      filters: [{ text: '大一', value: Grade.F1 }, { text: '大二', value: Grade.F2 }, { text: '大三', value: Grade.F3 }, { text: '大四', value: Grade.F4 }, { text: '其他', value: Grade.OTHERS }],
+      onFilter: (value: Grade, student: Student) => student.grade === value,
+      filteredValue: filters.grade || null
     }, {
       title: '班级',
       dataIndex: 'studentClass',
-      width: 100
+      width: 100,
+      customFilterDropdown: true,
+      onFilter: (value: number, score: Score) => score.studentClass === +value,
+      onFilterDropdownOpenChange: focusSearchInputByFlag,
+      filteredValue: !!searchedKeys.value.studentClass && [ ...searchedKeys.value.studentClass ],
     }, {
       title: '课程名称',
       dataIndex: 'courseName',
@@ -204,7 +275,8 @@ const columns = computed<TableColumnType<Score>>(() => {
       width: 100
     }, {
       title: '成绩',
-      dataIndex: 'score'
+      dataIndex: 'score',
+      width: 100
     }, {
       title: '单科班级排名',
       dataIndex: 'rankClassCourse',
@@ -231,10 +303,43 @@ const columns = computed<TableColumnType<Score>>(() => {
     }, {
       title: '操作',
       fixed: 'right',
-      width: 160
+      width: 100
     }
   ] as TableColumnType<Score>[]
 })
+
+const showModal = ref<boolean>(false)
+const formRef = ref()
+const formModel = ref<Score>(ScoreInitialState())
+
+const rules: Record<string, Rule[]> = {
+  score: [{ required: true, message: '请输入成绩' }, { min: 0, max: 100, type: 'number', message: '成绩必须在0-100之间' }],
+  scoreStatus: [{ required: true, message: '请选择成绩状态' }]
+}
+
+const btnLoading = ref<boolean>(false)
+const editSave = async () => {
+  formRef.value.validate().then(async (form: any) => {
+    btnLoading.value = true
+    const res = await updateScore({
+      data: {
+        courseId: formModel.value.courseId,
+        studentId: formModel.value.studentId,
+        scoreStatus: formModel.value.scoreStatus,
+        score: form.score
+      }
+    })
+    if (res.code === 0) {
+      message.success('修改成功')
+      showModal.value = false
+      formRef.value.resetFields()
+      await search()
+    } else {
+      message.error(res.msg)
+    }
+    btnLoading.value = false
+  }, () => {})
+}
 </script>
 
 <style scoped>

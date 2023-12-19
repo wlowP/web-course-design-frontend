@@ -49,7 +49,7 @@
               {{ record.num }}
             </a-typography-paragraph>
           </template>
-          <template v-if="column.title === '操作'">
+          <template v-else-if="column.title === '操作'">
             <a-space>
               <a-button type="default" @click="onOpenDrawer(record)">编辑</a-button>
               <a-popconfirm title="是否确定要停开?"

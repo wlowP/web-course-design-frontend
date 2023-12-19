@@ -18,19 +18,16 @@ const router: Router = createRouter({
         { path: ch('个人信息/系统简介'), component: () => import('@/views/userinfo/sys-description.vue') },
         { path: ch('个人信息/修改密码'), component: () => import('@/views/userinfo/renew-password.vue') },
         { path: ch('个人信息/项目文档'), component: () => import('@/views/userinfo/project-doc.vue') },
-        { path: ch('个人信息/项目视频'), component: () => import('@/views/userinfo/project-video.vue') },
         { path: ch('个人信息/个人简介'), component: () => import('@/views/userinfo/introduction.vue') },
-        { path: ch('系统管理/菜单管理'), component: () => import('@/views/system/menu.vue') },
-        { path: ch('系统管理/字典管理'), component: () => import('@/views/system/dictionary.vue') },
         { path: ch('人员管理/学生管理'), component: () => import('@/views/staff/student-list.vue') },
         { path: ch('人员管理/学生信息'), component: () => import('@/views/staff/student-info.vue') },
         { path: ch('人员管理/教师管理'), component: () => import('@/views/staff/teacher-list.vue') },
         { path: ch('人员管理/教师信息'), component: () => import('@/views/staff/teacher-info.vue') },
         { path: ch('教务管理/课程管理'), component: () => import('@/views/education/course-list.vue') },
-        // { path: ch('教务管理/课程信息'), component: () => import('@/views/education/course-info.vue') },
         { path: ch('教务管理/成绩管理'), component: () => import('@/views/education/score-list.vue') },
-        // { path: ch('教务管理/课程审核'), component: () => import('@/views/education/course-arrange.vue') }
-        { path: ch('课程表'), component: () => import('@/views/education/timetable-teacher.vue') },
+
+        // { path: ch('教务管理/课程表'), component: () => import('@/views/education/timetable-teacher.vue') },
+        // { path: ch('课程安排/课程表'), component: () => import('@/views/education/timetable-teacher.vue') }
       ]
     },
     // todo: 404页面

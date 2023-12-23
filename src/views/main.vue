@@ -4,12 +4,38 @@
     <a-layout style="height: 100vh;">
       <a-layout-header class="app-header">
         <a-row style="max-height: 60px">
-          <a-col class="logo" :span="5" style="background-color: pink;">
-            教务管理系统, 这里是logo
+          <a-col class="logo" :span="5">
+            <img src="@/assets/img/logo.png" alt="图片加载失败" style="height: 60px;">
           </a-col>
-          <a-col :span="7" :offset="12" style="background-color: deepskyblue;">
+          <a-col :span="5" :offset="14" style="overflow: hidden;">
             <a-row class="status">
-              <a-avatar class="avatar" :src="store.userInfo.avatar"/>
+              <a-popover
+                trigger="hover"
+                :open="openTooltip"
+                :mouse-enter-delay="0.2"
+                @openChange="(visible: boolean) => openTooltip = visible"
+              >
+                <template #title>
+                  <div style="text-align: center">
+                    {{ store.currentUser.username }} {{ store.currentUser.name }}
+                  </div>
+                </template>
+                <template #content>
+                  <div style="display: flex; flex-direction: column; align-items: center; text-align: center">
+                    <a-space direction="vertical">
+                      <template #split>
+                        <a-divider class="clearMargin"/>
+                      </template>
+                      <a-typography-link @click="router.push(ch('/主页/个人信息/系统简介'))">系统简介</a-typography-link>
+                      <a-typography-link @click="router.push(ch('/主页/个人信息/修改密码'))">修改密码</a-typography-link>
+                      <a-typography-link @click="router.push(ch('/主页/个人信息/项目文档'))">项目文档</a-typography-link>
+                      <a-typography-link v-if="store.userInfo.userType !== UserType.ADMIN" @click="router.push(ch('/主页/个人信息/个人简介'))">个人简介</a-typography-link>
+                      <a-button danger @click="logout" :icon="h(LogoutOutlined)">退出登录</a-button>
+                    </a-space>
+                  </div>
+                </template>
+                <a-avatar class="avatar" :src="store.userInfo.avatar" :size="{ xs: 16, sm: 24, md: 32, lg: 48, xl: 48, xxl: 48 }"/>
+              </a-popover>
               <div style="height: 60px; line-height: 30px">
                 <div>您好, {{ store.userInfo.name }}~</div>
                 <div>欢迎使用教务管理系统 <span>{{ time }}</span></div>
@@ -60,7 +86,8 @@
 import { h, onActivated, onMounted, reactive, ref, watch } from 'vue'
 import {
   DesktopOutlined,
-  FileTextOutlined,
+  FileTextOutlined, HighlightTwoTone,
+  LogoutOutlined,
   MailOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -70,6 +97,10 @@ import useUserStore from '@/stores/user'
 import { ch, deepClone, formatTime } from '@/utils/commons'
 import { useRoute, useRouter } from 'vue-router'
 import { UserType } from '@/types/Enums'
+import { getCurrentUser } from '@/api/general'
+import { message } from 'ant-design-vue'
+import { studentInitialState } from '@/types/Student'
+import { TeacherInitialState } from '@/types/Teacher'
 
 const store = useUserStore()
 const router = useRouter()
@@ -82,7 +113,8 @@ watch(() => route.path, () => {
 
 // 当前系统时间
 const time = ref<string>(formatTime(new Date()))
-onMounted(() => {
+
+onMounted(async () => {
   setInterval(() => {
     time.value = formatTime(new Date())
   }, 1000)
@@ -104,7 +136,6 @@ const initialItem = {
     {
       key: ch('/主页/个人信息/系统简介'),
       label: '系统简介',
-      title: '本项目的简介',
       icon: () => h(FileTextOutlined)
     }, {
       key: ch('/主页/个人信息/修改密码'),
@@ -120,7 +151,20 @@ const menuItems = reactive<any>([
 ])
 
 // 根据用户类型动态添加菜单项
-onActivated(() => {
+onActivated(async () => {
+  // 获取当前用户信息(学生/教师)
+  if (store.userInfo.userType !== UserType.ADMIN) {
+    const res = await getCurrentUser(store.userInfo.userType, store.userInfo.userId)
+    if (res.code === 0) {
+      store.currentUser = res.data
+    } else {
+      message.error(res.msg)
+      // 出错的话就拿初始状态来顶着
+      if (store.userInfo.userType === UserType.STUDENT) store.currentUser = studentInitialState()
+      else if (store.userInfo.userType === UserType.TEACHER) store.currentUser = TeacherInitialState()
+    }
+  }
+
   menuItems.splice(0)
   menuItems.push(deepClone(initialItem))
   const userinfo = menuItems[0].children
@@ -170,12 +214,20 @@ onActivated(() => {
           key: ch('/主页/个人信息/个人简介'),
           label: '个人简介'
         })
+        menuItems.push({
+          key: ch('/主页/博客/学生博客'),
+          label: '学生博客',
+          icon: () => h(HighlightTwoTone)
+        })
         break
       }
       case UserType.TEACHER: {
         userinfo.push({
-          key: ch('/主页/个人信息/个人简介'),
+          key: ch('/主页/个人信息/教师简介'),
           label: '个人简介'
+        }, {
+          key: ch('/主页/个人信息/项目文档'),
+          label: '项目文档'
         })
         menuItems.push({
           key: '教务管理',
@@ -195,12 +247,23 @@ onActivated(() => {
       }
     }
   }
-  // todo: 测试页面, 发布后删除
-  menuItems.push({
-    key: ch('/主页/测试页面'),
-    label: '📌📌测试页面'
-  })
 })
+
+// 用于控制悬浮头像时Tooltip的显示
+const openTooltip = ref<boolean>(false)
+
+// 退出登录
+const logout = () => {
+  store.userInfo = {
+    avatar: '',
+    name: '',
+    token: '',
+    userId: 0,
+    userType: UserType.NULL
+  }
+  store.currentUser = {} as any
+  router.push('/')
+}
 </script>
 
 <style scoped lang="scss">
@@ -208,13 +271,22 @@ onActivated(() => {
   .app-header {
     padding-left: 0;
     padding-right: 0;
-    color: white;
     height: 60px;
-    background-color: #7dbcea;
+    background-color: #B2EBF2;
+
+    .logo {
+      padding-left: 70px;
+      background-color: #a50001;
+      border-radius: 0 30px 30px 0;
+      img {
+        height: 60px;
+      }
+    }
 
     .status {
       height: 60px;
       display: flex;
+      flex-wrap: nowrap;
       align-items: center;
 
       .avatar {
@@ -257,7 +329,7 @@ onActivated(() => {
     text-align: left;
     color: white;
     overflow: auto;
-    background-color: #3ba0e9;
+    background-image: linear-gradient(#C2E7DA, #0097A7);
 
     .menu {
       .ant-btn {

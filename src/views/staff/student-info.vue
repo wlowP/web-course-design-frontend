@@ -152,7 +152,7 @@
                   >
                     <h3>{{ item.title || '无标题' }}</h3>
                     <p>时长: {{ item.duration }}</p>
-                    <a-divider class="reduce-margin"/>
+                    <a-divider class="reduceMargin"/>
                     <p>&emsp;{{ item.content }}</p>
                     <a-space class="operation">
                       <a-button type="primary" size="small"
@@ -417,10 +417,6 @@ const deleteActivity = async (studentAdvancedId: number) => {
     .activity {
       .operation {
         margin-top: 5px;
-      }
-
-      .reduce-margin {
-        margin: 5px 0;
       }
     }
   }

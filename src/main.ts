@@ -8,6 +8,8 @@ import './assets/css/base.scss'
 
 import persist from 'pinia-plugin-persistedstate'
 import VMdEditor from '@kangc/v-md-editor'
+import VMdPreview from '@kangc/v-md-editor/lib/preview'
+import '@kangc/v-md-editor/lib/style/preview.css'
 import '@kangc/v-md-editor/lib/style/base-editor.css'
 import vuePressTheme from '@kangc/v-md-editor/lib/theme/vuepress.js'
 import '@kangc/v-md-editor/lib/theme/style/vuepress.css'
@@ -16,7 +18,9 @@ import Prism from 'prismjs'
 const app = createApp(App)
 
 VMdEditor.use(vuePressTheme, { Prism })
+VMdPreview.use(vuePressTheme, { Prism })
 app.use(VMdEditor)
+app.use(VMdPreview)
 
 const pinia = createPinia()
 

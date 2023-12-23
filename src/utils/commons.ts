@@ -28,3 +28,15 @@ export const deepClone = (obj: any): any => {
 
 // 获取当前时间
 export const formatTime = (date: Date): string => `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`
+
+// 节流函数, 可带参
+export const throttle = (fn, period) => {
+  let timer
+  return (...args) => {
+    if (timer) return
+    timer = setTimeout(() => {
+      fn(...args)
+      timer = null
+    }, period)
+  }
+}

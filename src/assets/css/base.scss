@@ -88,11 +88,21 @@ ol {
   margin: 0 !important;
 }
 
+.reduceMargin {
+  margin: 5px 0;
+}
+
 .clearPadding {
   padding: 0 !important;
 }
 
+//削去盒子的margin和padding
 .stripBox {
   margin: 0 !important;
   padding: 0 !important;
+}
+
+img {
+  -webkit-user-drag: none;
+  user-select: none;
 }

@@ -10,9 +10,9 @@
       <a-col :xs="24" :lg="16">
         <a-card class="introduction" bordered>
           <template #title>
-            <span class="title">系统介绍</span>
+            <span class="title">接口文档</span>
           </template>
-          <p>啊?</p>
+          <v-md-editor v-model="md" mode="preview" height="calc(100vh - 95px)"/>
         </a-card>
       </a-col>
       <a-col :xs="24" :lg="8">
@@ -47,7 +47,7 @@
             <a-typography-paragraph>
               <ul>
                 <li>
-                  <a-typography-link href="https://apifox.com/apidoc/shared-1b992f4b-edb0-4961-93c9-0acd6a0aa236/api-123357560">
+                  <a-typography-link href="https://apifox.com/apidoc/shared-1b992f4b-edb0-4961-93c9-0acd6a0aa236">
                     点击查看接口文档
                   </a-typography-link>
                 </li>
@@ -70,7 +70,7 @@
 
 <script setup lang="ts">
 import svgDesc from '@/assets/svg/介绍.svg'
-
+import md from '@/assets/接口文档.md?raw'
 </script>
 
 <style scoped>

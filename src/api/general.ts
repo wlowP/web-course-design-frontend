@@ -1,4 +1,6 @@
-import request from '@/utils/request'
+import request, { type DataResponse } from '@/utils/request'
+import { UserType } from '@/types/Enums'
+import axios from 'axios'
 
 // 下载Excel
 export const downloadExcel = async (type: 'student' | 'teacher' | 'course', idList: number[]): void => {
@@ -16,9 +18,9 @@ export const downloadExcel = async (type: 'student' | 'teacher' | 'course', idLi
   const fileName: string = type === 'student' ? '学生信息表.xlsx' :
                            type === 'teacher' ? '教师信息表.xlsx' :
                                                 '课程信息表.xlsx'
-  if ('download' in document.createElement('a')) {
+  const fileLink = document.createElement('a')
+  if ('download' in fileLink) {
     // 非IE下载
-    const fileLink = document.createElement('a')
     fileLink.download = fileName
     fileLink.style.display = 'none'
     fileLink.href = URL.createObjectURL(blob)
@@ -30,4 +32,15 @@ export const downloadExcel = async (type: 'student' | 'teacher' | 'course', idLi
     // IE10+下载
     window.navigator.msSaveBlob(blob, fileName)
   }
+}
+
+// 获取当前用户(学生/教师)信息
+export const getCurrentUser = async (userType: UserType, userId: number): Promise<DataResponse> => {
+  let res: DataResponse
+  if (userType === UserType.STUDENT) {
+    res = await request.post('/student/selectStudent', { data: { userId } })
+  } else if (userType === UserType.TEACHER) {
+    res = await request.post('/teacher/selectTeacher', { data: { userId } })
+  }
+  return res
 }

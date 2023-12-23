@@ -28,7 +28,7 @@
               <a-form-item name="remember" no-style>
                 <a-checkbox v-model:checked="formState.remember" style="float: left">记住我</a-checkbox>
               </a-form-item>
-              <a class="login-form-forgot" href="" style="float: right">忘记密码</a>
+              <!--<a class="login-form-forgot" href="" style="float: right">忘记密码</a>-->
             </a-form-item>
 
             <a-form-item>
@@ -36,7 +36,7 @@
                         class="login-form-button" style="margin: 10px; width: 400px ;display: block">
                 登 录
               </a-button>
-              <a href="" style="float: right">现在注册!</a>
+              <!-- <a href="" style="float: right">现在注册!</a> -->
             </a-form-item>
           </a-form>
         </div>
@@ -100,10 +100,14 @@ const router = useRouter()
 const store = useUserStore()
 
 const formState = ref({
-  username: 'admin',
-  password: '123456',
-  remember: true
+  username: '',
+  password: '',
+  remember: false
 })
+
+if (store.loginForm.remember) {
+  formState.value = store.loginForm
+}
 
 const login = async () => {
   const res: DataResponse = await request.post('/auth/login', {
@@ -111,6 +115,10 @@ const login = async () => {
     password: formState.value.password
   })
   if (res.code === 0) {
+    // 记住密码
+    if (formState.value.remember) {
+      store.loginForm = formState.value
+    }
     message.success(`欢迎回来, ${res.data.name}!`)
     store.userInfo = res.data
     await router.push(ch('/主页'))

@@ -78,12 +78,26 @@ export const studentInitialState = (): Student => ({
   userType: UserType.STUDENT
 })
 
+export type StudentActivityTypeString = 'honors' | 'competitions' | 'disciplinary' | 'clubs' | 'volunteer' | 'internship'
+
 // 学生活动类型的映射关系
-export const StudentActivityType: Record<number, { label: string, dataIndex: 'honors' | 'competitions' | 'disciplinary' | 'clubs' | 'volunteer' | 'internship' }> = {
+export const StudentActivityType: Record<number, { label: string, dataIndex: StudentActivityTypeString }> = {
   1: { label: '个人荣誉', dataIndex: 'honors' },
   2: { label: '竞赛经历', dataIndex: 'competitions' },
   3: { label: '处分', dataIndex: 'disciplinary' },
   4: { label: '社团', dataIndex: 'clubs' },
   5: { label: '志愿活动', dataIndex: 'volunteer' },
   6: { label: '实习经历', dataIndex: 'internship' }
+}
+
+export interface Blog {
+  blogId: number
+  userId: number
+  text: string
+  title: string
+  digest?: string // 博客的摘要, 也就是title的前100个字
+  author: string
+  praise: number // 博客的点赞数
+  createTime: string
+  updateTime: string
 }

@@ -21,7 +21,7 @@
           name="oldPassword"
           has-feedback
         >
-          <a-input autocomplete="off" v-model:value="formState.oldPassword"/>
+          <a-input-password autocomplete="off" v-model:value="formState.oldPassword"/>
         </a-form-item>
 
         <a-form-item
@@ -54,7 +54,7 @@
 <script setup lang="ts">
 import svgRenewPwd from '@/assets/svg/修改密码.svg'
 import { useRouter } from 'vue-router'
-import { ref } from 'vue'
+import { onActivated, ref } from 'vue'
 import type { Rule } from 'ant-design-vue/es/form'
 import request, { type DataResponse } from '@/utils/request'
 import useUserStore from '@/stores/user'
@@ -67,6 +67,14 @@ const formState = ref({
   oldPassword: '',
   newPassword: '',
   confirmPassword: '',
+})
+
+onActivated(() => {
+  formState.value = {
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  }
 })
 
 // 各项表单的校验规则
@@ -94,6 +102,11 @@ const onFinish = async () => {
   })
   if (res.code === 0) {
     message.success('修改密码成功! 下次登录请使用新密码')
+    formState.value = {
+      oldPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+    }
   } else {
     message.error(res.msg)
   }
